@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{F14B399A-7131-4C87-9E4B-1186C45EF12D}") = "SLBU", "SLBU.rptproj", "{625DCF14-35C0-47C2-B2AA-F7845D0BDB0D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Default = Debug|Default
+		DebugLocal|Default = DebugLocal|Default
+		Release|Default = Release|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{625DCF14-35C0-47C2-B2AA-F7845D0BDB0D}.Debug|Default.ActiveCfg = Debug
+		{625DCF14-35C0-47C2-B2AA-F7845D0BDB0D}.Debug|Default.Build.0 = DebugLocal
+		{625DCF14-35C0-47C2-B2AA-F7845D0BDB0D}.Debug|Default.Deploy.0 = DebugLocal
+		{625DCF14-35C0-47C2-B2AA-F7845D0BDB0D}.DebugLocal|Default.ActiveCfg = DebugLocal
+		{625DCF14-35C0-47C2-B2AA-F7845D0BDB0D}.DebugLocal|Default.Build.0 = DebugLocal
+		{625DCF14-35C0-47C2-B2AA-F7845D0BDB0D}.Release|Default.ActiveCfg = Release
+		{625DCF14-35C0-47C2-B2AA-F7845D0BDB0D}.Release|Default.Build.0 = Release
+		{625DCF14-35C0-47C2-B2AA-F7845D0BDB0D}.Release|Default.Deploy.0 = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

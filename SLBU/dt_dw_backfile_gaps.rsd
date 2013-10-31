@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_dpt_warehouse_live</DataSourceReference>
+      <CommandText>--DECLARE @pt_country varchar(100);
+--SET @pt_country = 'Canada';
+
+--DECLARE @pt_product varchar(100);
+--SET @pt_product = 'Nature Medicine';
+
+WITH cte_year ([Product Group Key], [Product Title], year_pub)
+AS
+(
+	SELECT pg.[Product Group Key],pg.[Product Title],
+		CASE 
+			WHEN pg.[Product Title] in ('Nature Climate Change') THEN 2011
+			WHEN pg.[Product Title] in ('Nature Communications') THEN 2010
+			WHEN pg.[Product Title] in ('Nature Chemistry') THEN 2009
+			WHEN pg.[Product Title] in ('Nature Geoscience') THEN 2008			
+			WHEN pg.[Product Title] in ('Nature Reviews Cancer','Nature Reviews Immunology') THEN 2001
+			WHEN pg.[Product Title] in ('Nature Immunology','Nature Reviews Genetics','Nature Reviews Molecular Cell Biology','Nature Reviews Nephrology') THEN 2000
+			WHEN pg.[Product Title] in ('Nature Chemical Biology') THEN 1999
+			WHEN pg.[Product Title] in ('Nature Medicine') THEN 1995
+		END AS 'first_year'			--in lieu of table for year of first publication,  
+	FROM dim.ProductGroup pg		
+	WHERE pg.[Product Group Type] = 'DW' 
+		and pg.[Product Title] in (@pt_product)
+		--and pg.[Product Title] in ('Nature Reviews Cancer','Nature Reviews Genetics','Nature Reviews Immunology','Nature Reviews Molecular Cell Biology',
+			--'Nature Reviews Nephrology','Nature Chemical Biology','Nature Chemistry','Nature Climate Change','Nature Geoscience',
+			--'Nature Immunology','Nature Communications','Nature Medicine')
+
+	UNION ALL
+	 
+	SELECT [Product Group Key], [Product Title],  year_pub + 1
+	FROM cte_year
+	WHERE year_pub &lt; year(getdate())
+)
+
+SELECT bfg.year_pub, bfg.[Organisation Key], bfg.[Full Name],bfg.Country, bfg.current_access_fee, bfg.current_site_licence, 
+	bfg.[Product Group Key], bfg.[Product Title]
+	, MAX(bfg.retained_access) as 'retained_access'	
+	, CASE	
+		--current site licence
+		WHEN bfg.year_pub = year(getdate()) and MAX(bfg.code) = 2 and ((bfg.current_access_fee is not null) or (bfg.current_site_licence is not null)) THEN 'SL'
+		--post cancellation rights
+		WHEN bfg.year_pub &lt;&gt; year(getdate()) and MAX(bfg.code)= 2 and ((bfg.current_access_fee is not null) or (bfg.current_site_licence is not null)) THEN 'PC'
+		--back file
+		WHEN MAX(bfg.code)= 1 and ((bfg.current_access_fee is not null) or (bfg.current_site_licence is not null)) THEN 'BF'
+		--inactive back file
+		WHEN MAX(bfg.code)= 1 and ((bfg.current_access_fee is  null) and  (bfg.current_site_licence is  null)) THEN '(BF)'
+		--inactive post cancellation rights
+		WHEN MAX(bfg.code)= 2 and ((bfg.current_access_fee is  null) and  (bfg.current_site_licence is  null)) THEN '(PC)'
+		ELSE ' '
+	END as 'code'	
+FROM
+(
+	SELECT cy.*, o.[Full Name], o.[Organisation Key]
+		, p.[Start Date], p.[Expire Date]
+		, p.[Subscription Category]
+		, l.Country
+		, caf.[Organisation Key] as 'current_access_fee'
+		, csl.[Organisation Key] as 'current_site_licence'
+		--code
+		, CASE	
+			-- SL
+			WHEN p.[Subscription Category] = 'Site Licence' 
+				and (p.[Start Date] &lt;= CAST('31 December' + CAST(cy.year_pub as varchar)as datetime)) 
+				and (p.[Expire Date] &gt;= CAST('1 January' + CAST(cy.year_pub as varchar)as datetime)) 
+			THEN 2 --'SL' 
+			-- backfile
+			WHEN p.[Subscription Category] = 'Back File' 
+				and (p.[Start Date] &lt;= CAST('31 December' + CAST(cy.year_pub as varchar)as datetime)) 
+				and (p.[Expire Date] &gt;= CAST('1 January' + CAST(cy.year_pub as varchar)as datetime)) 
+			THEN 1 --'BF'
+			ELSE 0 --' '		
+		END as 'code'
+		, p.retained_access
+	FROM cte_year cy
+		cross join 	Nature_Warehouse.[dim].Organisation o
+		inner join Nature_Warehouse.[dim].location l on o.[Location Key] = l.[Location Key]	
+		left join 
+		(
+			SELECT o.[Organisation Key], pg.[Product Group Key],
+				s.[Order Header ID], s.[Order Item Seq],s.[Start Date],s.[Expire Date],s.[Cancellation Date],
+				p.[Subscription Category],
+				CASE	
+					WHEN s.[Start Date] &gt;= CAST('1 January 2006' as datetime)
+						and s.[Expire Date] &lt; CAST('1 March 2007' as datetime)
+						and s.[Cancellation Date] is null
+						and p.[Subscription Category] = 'Site Licence'
+					THEN 1
+					ELSE 0
+				END AS 'retained_access'
+			FROM Nature_Warehouse.[dim].Organisation o
+				inner join Nature_Warehouse.[dim].CustomerAddress ca on o.[Organisation Key]=ca.[Organisation Key]
+				inner join Nature_Warehouse.[fact].[Sales] s on s.[Ship To Customer Key]=ca.[Customer Key]
+				inner join Nature_Warehouse.[dim].Product p on s.[Unpackaged Product Key]=p.[Product Key]
+				inner join Nature_Warehouse.[dim].ProductGroup pg on p.[DW Product Group Key]=pg.[Product Group Key]
+				inner join Nature_Warehouse.[dim].location l on o.[Location Key] = l.[Location Key]	
+			WHERE l.Country in (@pt_country)				
+				--and pg.[Product Group2] = 'NPG'	--to replace with a branding parameter?
+				and p.[Revenue Method] &lt;&gt; 'Print'	--non-print products
+				and s.[Cancellation Date] is null	--excludes cancelled orders
+		) p on o.[Organisation Key] = p.[Organisation Key] 
+			and cy.[Product Group Key] = p.[Product Group Key]
+			and (p.[Start Date] &lt;= CAST('31 December' + CAST(cy.year_pub as varchar)as datetime)) 
+			and (p.[Expire Date] &gt;= CAST('1 January' + CAST(cy.year_pub as varchar)as datetime)) 
+			
+		--current access fee	
+		left join
+		(		
+			SELECT o.[Organisation Key],pg.[Product Group Key]
+			FROM Nature_Warehouse.[dim].Organisation o
+				inner join Nature_Warehouse.[dim].CustomerAddress ca on o.[Organisation Key]=ca.[Organisation Key]
+				inner join Nature_Warehouse.[fact].[Sales] s on s.[Ship To Customer Key]=ca.[Customer Key]
+				inner join Nature_Warehouse.[dim].Product p on s.[Unpackaged Product Key]=p.[Product Key]
+				inner join Nature_Warehouse.[dim].ProductGroup pg on p.[DW Product Group Key]=pg.[Product Group Key]
+				inner join Nature_Warehouse.[dim].location l on o.[Location Key] = l.[Location Key]	
+			WHERE s.[Cancellation Date] is null
+				and s.[Start Date] &lt; GETDATE()
+				and s.[Expire Date] &gt; GETDATE()
+				and p.[Subscription Category] in ('Access Fee Fixed','Access Fee Custom Archve','Access Fee Custom PCA')
+				and l.Country in (@pt_country)
+				and pg.[Product Title] in (@pt_product)
+			GROUP BY o.[Organisation Key],pg.[Product Group Key]
+		) caf on o.[Organisation Key] = caf.[Organisation Key] 
+			and cy.[Product Group Key] = caf.[Product Group Key]
+		
+		--current site licence
+		left join
+		(		
+			SELECT o.[Organisation Key],pg.[Product Group Key]	
+			FROM Nature_Warehouse.[dim].Organisation o
+				inner join Nature_Warehouse.[dim].CustomerAddress ca on o.[Organisation Key]=ca.[Organisation Key]
+				inner join Nature_Warehouse.[fact].[Sales] s on s.[Ship To Customer Key]=ca.[Customer Key]
+				inner join Nature_Warehouse.[dim].Product p on s.[Unpackaged Product Key]=p.[Product Key]
+				inner join Nature_Warehouse.[dim].ProductGroup pg on p.[DW Product Group Key]=pg.[Product Group Key]
+				inner join Nature_Warehouse.[dim].location l on o.[Location Key] = l.[Location Key]	
+			WHERE s.[Cancellation Date] is null
+				and s.[Start Date] &lt; GETDATE()
+				and s.[Expire Date] &gt; GETDATE()
+				and p.[Subscription Category] in ('Site Licence')
+				and l.Country in (@pt_country)
+				and pg.[Product Title] in (@pt_product)
+			GROUP BY o.[Organisation Key],pg.[Product Group Key]
+		) csl on o.[Organisation Key] = csl.[Organisation Key] 
+			and cy.[Product Group Key] = csl.[Product Group Key] 			
+		
+	WHERE l.Country in (@pt_country)
+		and 
+		CASE	
+			WHEN @pt_access_type = 1 THEN ((csl.[Organisation Key] is not null) and (caf.[Organisation Key] is  null ))
+			WHEN @pt_access_type = 2 THEN ((csl.[Organisation Key] is  null) and( caf.[Organisation Key] is not  null ))
+			WHEN @pt_access_type = 3 THEN ((csl.[Organisation Key] is  null )and (caf.[Organisation Key] is  null ))
+		END
+) bfg
+GROUP BY bfg.year_pub, bfg.[Organisation Key], bfg.[Full Name],bfg.Country, bfg.current_access_fee, bfg.current_site_licence, bfg.[Product Group Key], bfg.[Product Title]
+ORDER BY bfg.[Organisation Key],bfg.[Product Title],bfg.year_pub</CommandText>
+    </Query>
+  </DataSet>
+</SharedDataSet>

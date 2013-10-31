@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RptDataSource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="ds_eclipse_staging">
+  <ConnectionProperties>
+    <Extension>SQL</Extension>
+    <ConnectString>Data Source=192.168.88.225;Initial Catalog=eclipse_staging</ConnectString>
+  </ConnectionProperties>
+  <DataSourceID>520147e4-2bc9-47be-a417-055fe262b9af</DataSourceID>
+</RptDataSource>

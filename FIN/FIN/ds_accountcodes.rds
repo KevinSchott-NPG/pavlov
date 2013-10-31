@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RptDataSource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="ds_accountcodes">
+  <ConnectionProperties>
+    <Extension>XML</Extension>
+    <ConnectString>//192.168.6.49/eclipse_extracts/general_ledger/config/accountcodes.xml</ConnectString>
+  </ConnectionProperties>
+  <DataSourceID>e75fc49b-f0e9-4a76-a718-3c35872521f7</DataSourceID>
+</RptDataSource>

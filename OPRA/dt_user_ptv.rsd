@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_report_server_live</DataSourceReference>
+      <DataSetParameters>
+        <DataSetParameter Name="@pt_include_dev_users">
+          <ReadOnly>false</ReadOnly>
+          <Nullable>false</Nullable>
+          <OmitFromQuery>false</OmitFromQuery>
+          <rd:DbType>Object</rd:DbType>
+        </DataSetParameter>
+      </DataSetParameters>
+      <CommandText>--user ptv
+SELECT *
+FROM
+(
+	SELECT distinct el.UserName,
+		CASE	
+			WHEN el.UserName  in ('MPL\s.o''toole','MPL\S.Spicer', 'MPL\a.shakespeare' , 'MPL\E.Birch',
+				'MPL\Junko.Hagiwara','MPL\Kevin.Schott','MPL\Mustafa.Haider'  ) 
+			THEN 1
+			ELSE 0
+		END AS 'dev'
+	FROM ExecutionLog el
+) u
+WHERE 
+(
+	(@pt_include_dev_users = 0 and u.dev = 0)
+	Or (@pt_include_dev_users = 1)
+)</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="UserName">
+        <DataField>UserName</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="dev">
+        <DataField>dev</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

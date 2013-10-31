@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RptDataSource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="ds_dpt_master_live">
+  <ConnectionProperties>
+    <Extension>SQL</Extension>
+    <ConnectString>Data Source=MPL-LDN-NPGDB2;Initial Catalog=Nature_Master</ConnectString>
+  </ConnectionProperties>
+  <DataSourceID>086cfef9-e808-427d-8414-b6ef3c10622b</DataSourceID>
+</RptDataSource>

@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RptDataSource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="ds_oracle_financials_oledb">
+  <ConnectionProperties>
+    <Extension>OLEDB</Extension>
+    <ConnectString>Provider=OraOLEDB.Oracle.1;Data Source=MPRD</ConnectString>
+  </ConnectionProperties>
+  <DataSourceID>391a3fb2-9360-4483-93fe-f6249d294715</DataSourceID>
+</RptDataSource>

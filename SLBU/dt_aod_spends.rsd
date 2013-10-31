@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_nature_reporting</DataSourceReference>
+      <DataSetParameters>
+        <DataSetParameter Name="@site">
+          <ReadOnly>false</ReadOnly>
+          <Nullable>false</Nullable>
+          <OmitFromQuery>false</OmitFromQuery>
+          <rd:DbType>Object</rd:DbType>
+        </DataSetParameter>
+        <DataSetParameter Name="@product">
+          <ReadOnly>false</ReadOnly>
+          <Nullable>false</Nullable>
+          <OmitFromQuery>false</OmitFromQuery>
+          <rd:DbType>Object</rd:DbType>
+        </DataSetParameter>
+        <DataSetParameter Name="@pt_start_date">
+          <ReadOnly>false</ReadOnly>
+          <Nullable>false</Nullable>
+          <OmitFromQuery>false</OmitFromQuery>
+          <rd:DbType>Object</rd:DbType>
+        </DataSetParameter>
+        <DataSetParameter Name="@pt_end_date">
+          <ReadOnly>false</ReadOnly>
+          <Nullable>false</Nullable>
+          <OmitFromQuery>false</OmitFromQuery>
+          <rd:DbType>Object</rd:DbType>
+        </DataSetParameter>
+      </DataSetParameters>
+      <CommandText>SELECT pog.journal_code, pog.doi, pog.created_on, sa.site_id, sa.company, p.product_desc,
+	a.PD_date, a.Atl, a.DOI
+FROM  Site_Licenses2.tango_client.site_accounts sa
+	INNER JOIN Site_Licenses2.tango_client.licenses l ON sa.site_id= l.site_id 
+	INNER JOIN Site_Licenses2.dbo.ppv_orders po ON l.id=po.license_id 
+	INNER JOIN Site_Licenses2.dbo.ppv_order_grant pog ON po.ppv_order_id=pog.ppv_order_id 	
+	LEFT OUTER JOIN Reg_Data.tango_client.products p ON pog.journal_code=p.product_code
+	Left join Dynasearch.dbo.Article a on pog.doi = a.DOI
+WHERE sa.site_id in (@site)
+	and p.product_id in (@product)
+	and pog.created_on &gt;= @pt_start_date
+	and pog.created_on &lt; @pt_end_date
+	--and	pog.created_on &gt;= dATEADD(month, DATEDIFF(month, 0, GETDATE())-1, 0)
+	--and pog.created_on &lt; DATEADD(month, DATEDIFF(month, 0, GETDATE()), 0)	
+ORDER BY pog.journal_code</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="journal_code">
+        <DataField>journal_code</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="doi">
+        <DataField>doi</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="created_on">
+        <DataField>created_on</DataField>
+        <rd:TypeName>System.DateTime</rd:TypeName>
+      </Field>
+      <Field Name="site_id">
+        <DataField>site_id</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="company">
+        <DataField>company</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="product_desc">
+        <DataField>product_desc</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="PD_date">
+        <DataField>PD_date</DataField>
+        <rd:TypeName>System.DateTime</rd:TypeName>
+      </Field>
+      <Field Name="Atl">
+        <DataField>Atl</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="DOI">
+        <DataField>DOI</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

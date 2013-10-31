@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RptDataSource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="ds_report_server_live">
+  <ConnectionProperties>
+    <Extension>SQL</Extension>
+    <ConnectString>Data Source=MPL-LDN-NPGDB2;Initial Catalog=ReportServer</ConnectString>
+  </ConnectionProperties>
+  <DataSourceID>7c24b562-b30b-42af-80e3-b8b42af24fd9</DataSourceID>
+</RptDataSource>

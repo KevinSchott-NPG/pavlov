@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RptDataSource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="Campaign">
+  <ConnectionProperties>
+    <Extension>SQL</Extension>
+    <ConnectString>Data Source=199.168.13.48;Initial Catalog=Campaign</ConnectString>
+  </ConnectionProperties>
+  <DataSourceID>46b0fe6f-6eb0-420f-82c8-ade70faa5ded</DataSourceID>
+</RptDataSource>

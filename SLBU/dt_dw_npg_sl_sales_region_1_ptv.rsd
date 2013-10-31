@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_dpt_warehouse_live</DataSourceReference>
+      <CommandText>--NPG SL sales 1
+SELECT distinct l.[NPG SL sales1 Key], l.[NPG SL sales1]
+FROM Nature_Warehouse.[dim].location l
+WHERE l.[NPG SL sales1 Key] is not null</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="NPG_SL_sales1_Key">
+        <DataField>NPG SL sales1 Key</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="NPG_SL_sales1">
+        <DataField>NPG SL sales1</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

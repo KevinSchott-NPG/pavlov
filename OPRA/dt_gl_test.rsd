@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_oracle_financials_oledb</DataSourceReference>
+      <CommandText>SELECT *
+FROM  APPS.XXMC_GL_BALANCES_V 
+WHERE PERIOD_NAME = 'May-13'
+	And ACCOUNT = 95611
+ORDER BY PERIOD_NAME DESC</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="PERIOD_NAME">
+        <DataField>PERIOD_NAME</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="CHART_OF_ACCOUNTS_ID">
+        <DataField>CHART_OF_ACCOUNTS_ID</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+      <Field Name="COMPANY">
+        <DataField>COMPANY</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="DIVISION">
+        <DataField>DIVISION</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="COST_CENTRE">
+        <DataField>COST_CENTRE</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="ACCOUNT">
+        <DataField>ACCOUNT</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="SUB_ACCOUNT">
+        <DataField>SUB_ACCOUNT</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="SPARE">
+        <DataField>SPARE</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="ACCOUNT_CODE_COMBINATION">
+        <DataField>ACCOUNT_CODE_COMBINATION</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="ACCOUNT_CODE_COMBINATION_ID">
+        <DataField>ACCOUNT_CODE_COMBINATION_ID</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+      <Field Name="ACCOUNT_CODE_COMBINATION_DESC">
+        <DataField>ACCOUNT_CODE_COMBINATION_DESC</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="COMPANY_DESCRIPTION">
+        <DataField>COMPANY_DESCRIPTION</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="DIVISION_DESCRIPTION">
+        <DataField>DIVISION_DESCRIPTION</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="COST_CENTRE_DESCRIPTION">
+        <DataField>COST_CENTRE_DESCRIPTION</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="ACCOUNT_DESCRIPTION">
+        <DataField>ACCOUNT_DESCRIPTION</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="SUB_ACCOUNT_DESCRIPTION">
+        <DataField>SUB_ACCOUNT_DESCRIPTION</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="SPARE_DESCRIPTION">
+        <DataField>SPARE_DESCRIPTION</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="LEDGER_ID">
+        <DataField>LEDGER_ID</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+      <Field Name="LEDGER_NAME">
+        <DataField>LEDGER_NAME</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="LEDGER_DESCRIPTION">
+        <DataField>LEDGER_DESCRIPTION</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="ENTERED_CURRENCY">
+        <DataField>ENTERED_CURRENCY</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="ENTERED_OPENING_BALANCE">
+        <DataField>ENTERED_OPENING_BALANCE</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+      <Field Name="ENTERED_CLOSING_BALANCE">
+        <DataField>ENTERED_CLOSING_BALANCE</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+      <Field Name="ENTERED_MOVEMENT">
+        <DataField>ENTERED_MOVEMENT</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+      <Field Name="FUNCTIONAL_CURRENCY">
+        <DataField>FUNCTIONAL_CURRENCY</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="FUNCTIONAL_OPENING_BALANCE">
+        <DataField>FUNCTIONAL_OPENING_BALANCE</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+      <Field Name="FUNCTIONAL_CLOSING_BALANCE">
+        <DataField>FUNCTIONAL_CLOSING_BALANCE</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+      <Field Name="FUNCTIONAL_MOVEMENT">
+        <DataField>FUNCTIONAL_MOVEMENT</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

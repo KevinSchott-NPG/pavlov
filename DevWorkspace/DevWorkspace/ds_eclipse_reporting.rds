@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RptDataSource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="ds_Reporting">
+  <ConnectionProperties>
+    <Extension>SQL</Extension>
+    <ConnectString>Data Source="192.168.6.36, 3433";Initial Catalog=eclipse_reporting</ConnectString>
+  </ConnectionProperties>
+  <DataSourceID>6cb7b2ff-3c72-4eb6-8225-30d755547777</DataSourceID>
+</RptDataSource>

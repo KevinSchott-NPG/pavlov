@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_eclipse_staging</DataSourceReference>
+      <DataSetParameters>
+        <DataSetParameter Name="@order_number">
+          <ReadOnly>false</ReadOnly>
+          <Nullable>false</Nullable>
+          <OmitFromQuery>false</OmitFromQuery>
+          <rd:DbType>Object</rd:DbType>
+        </DataSetParameter>
+      </DataSetParameters>
+      <CommandText>SELECT c.currency, p.payment_type, p.payment_seq, p.pay_currency_amount, p.base_amount, p.customer_id, dr.description, 
+p.creation_date, dr.document_reference_id, p.payment_clear_status, ibd.ics_bank_def_id, oi.orderhdr_id, p.transaction_type, et.xaction_name, oi.order_item_type, dr.user_code, p.ref_nbr, vmb.branding_description, p.is_reversed
+FROM order_item oi
+	inner join view_mcmn_branding vmb on oi.oc_id = vmb.oc_id
+	left outer join subscription_def sd on oi.subscription_def_id = sd.subscription_def_id
+	left outer join subscription_category sc on sd.subscription_category_id = sc.subscription_category_id
+	inner join customer_address ca on oi.bill_to_customer_id = ca.customer_id
+		and oi.bill_to_customer_address_seq = ca.customer_address_seq
+	inner join paybreak pb on oi.order_item_seq = pb.order_item_seq
+		and oi.orderhdr_id = pb.orderhdr_id
+	inner join edit_trail et on pb.customer_id = et.customer_id	
+		and pb.payment_seq = et.payment_seq
+	inner join payment p on et.customer_id = p.customer_id
+		and et.payment_seq = p.payment_seq
+	inner join currency c on p.currency = c.currency
+	left outer join ics_bank_def ibd on p.ics_bank_def_id = ibd.ics_bank_def_id
+	inner join payment_type pt on p.payment_type = pt.payment_type
+	inner join document_reference dr on et.document_reference_id = dr.document_reference_id
+	left outer join pending_xaction_header pxh on dr.document_reference_id = pxh.document_reference_id
+WHERE p.payment_type in ('AX','CCC','CD','DC','MC','SW','VS')
+	and p.transaction_type in (0,2)
+	and et.xaction_name in ('customer_add_order_add_payment_add_request','order_add_payment_add_request','payment_add_request','zzjob_billing_update_request')
+	and oi.order_item_type &lt;&gt; 4
+	and dr.description &lt;&gt; 'Billing Update'
+	and dr.user_code = 'OSM'
+	and p.ref_nbr like '%-%'
+	and vmb.branding_description in ('Nature Publishing Group','BioCentury')
+	and not(p.is_reversed = 1 or p.payment_clear_status = 5)
+	and oi.orderhdr_id in (@order_number)</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="currency">
+        <DataField>currency</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="payment_type">
+        <DataField>payment_type</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="payment_seq">
+        <DataField>payment_seq</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="pay_currency_amount">
+        <DataField>pay_currency_amount</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+      <Field Name="base_amount">
+        <DataField>base_amount</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+      <Field Name="customer_id">
+        <DataField>customer_id</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="description">
+        <DataField>description</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="creation_date">
+        <DataField>creation_date</DataField>
+        <rd:TypeName>System.DateTime</rd:TypeName>
+      </Field>
+      <Field Name="document_reference_id">
+        <DataField>document_reference_id</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="payment_clear_status">
+        <DataField>payment_clear_status</DataField>
+        <rd:TypeName>System.Int16</rd:TypeName>
+      </Field>
+      <Field Name="ics_bank_def_id">
+        <DataField>ics_bank_def_id</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="orderhdr_id">
+        <DataField>orderhdr_id</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="transaction_type">
+        <DataField>transaction_type</DataField>
+        <rd:TypeName>System.Int16</rd:TypeName>
+      </Field>
+      <Field Name="xaction_name">
+        <DataField>xaction_name</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="order_item_type">
+        <DataField>order_item_type</DataField>
+        <rd:TypeName>System.Int16</rd:TypeName>
+      </Field>
+      <Field Name="user_code">
+        <DataField>user_code</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="ref_nbr">
+        <DataField>ref_nbr</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="branding_description">
+        <DataField>branding_description</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="is_reversed">
+        <DataField>is_reversed</DataField>
+        <rd:TypeName>System.Int16</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

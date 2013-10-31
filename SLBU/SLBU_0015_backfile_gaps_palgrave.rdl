@@ -1,0 +1,2162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns:cl="http://schemas.microsoft.com/sqlserver/reporting/2010/01/componentdefinition" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/reportdefinition">
+  <AutoRefresh>0</AutoRefresh>
+  <DataSources>
+    <DataSource Name="dt_dpt_warehouse_live">
+      <DataSourceReference>ds_dpt_warehouse_live</DataSourceReference>
+      <rd:SecurityType>None</rd:SecurityType>
+      <rd:DataSourceID>820261a4-ca13-4f64-ab2f-502c00968b2b</rd:DataSourceID>
+    </DataSource>
+  </DataSources>
+  <DataSets>
+    <DataSet Name="dt_dw_npg_sl_sales_region_1">
+      <SharedDataSet>
+        <SharedDataSetReference>dt_dw_npg_sl_sales_region_1_ptv</SharedDataSetReference>
+      </SharedDataSet>
+      <Fields>
+        <Field Name="NPG_SL_sales1_Key">
+          <DataField>NPG_SL_sales1_Key</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="NPG_SL_sales1">
+          <DataField>NPG_SL_sales1</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="dt_dw_npg_sl_sales_region_2">
+      <SharedDataSet>
+        <SharedDataSetReference>dt_dw_npg_sl_sales_region_2_ptv</SharedDataSetReference>
+        <QueryParameters>
+          <QueryParameter Name="@pt_npg_sl_sales_1">
+            <Value>=Parameters!pt_npg_sl_sales_1.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </SharedDataSet>
+      <Fields>
+        <Field Name="NPG_SL_sales2_Key">
+          <DataField>NPG_SL_sales2_Key</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="NPG_SL_sales2">
+          <DataField>NPG_SL_sales2</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="NPG_SL_sales1_Key">
+          <DataField>NPG_SL_sales1_Key</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="NPG_SL_sales1">
+          <DataField>NPG_SL_sales1</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="dt_country">
+      <SharedDataSet>
+        <SharedDataSetReference>dt_dw_country_ptv</SharedDataSetReference>
+        <QueryParameters>
+          <QueryParameter Name="@pt_npg_sl_sales_2">
+            <Value>=Parameters!pt_npg_sl_sales_2.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </SharedDataSet>
+      <Fields>
+        <Field Name="Country">
+          <DataField>Country</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="NPG_SL_sales2">
+          <DataField>NPG_SL_sales2</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="NPG_SL_sales2_Key">
+          <DataField>NPG_SL_sales2_Key</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="dt_dw_access_type_ptv">
+      <SharedDataSet>
+        <SharedDataSetReference>dt_dw_access_type_ptv</SharedDataSetReference>
+      </SharedDataSet>
+      <Fields>
+        <Field Name="label">
+          <DataField>label</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="value">
+          <DataField>value</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="dt_dw_product_group_g3_ptv">
+      <Query>
+        <DataSourceName>dt_dpt_warehouse_live</DataSourceName>
+        <CommandText>--Palgrave Journals
+
+SELECT distinct pg.[Product Group3],pg.[Product Group3 ID]
+FROM Nature_Warehouse.[dim].ProductGroup pg
+WHERE pg.[Product Group Type] = 'DW'
+	and pg.[Product Group2 ID] = 6 --PAL only
+	and pg.[Product Group3 ID] in (13) --Palgrave Journals</CommandText>
+      </Query>
+      <Fields>
+        <Field Name="Product_Group3">
+          <DataField>Product Group3</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Product_Group3_ID">
+          <DataField>Product Group3 ID</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="dt_dw_product_group_ptv">
+      <Query>
+        <DataSourceName>dt_dpt_warehouse_live</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@pt_product_group_3">
+            <Value>=Parameters!pt_product_group_3.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandText>SELECT pg.[Product Group Key], pg.[Product Title]
+FROm Nature_Warehouse.[dim].ProductGroup pg
+WHERE pg.[Product Group Type] = 'DW'
+	and pg.[Product Group3 ID] in (@pt_product_group_3)
+	and pg.[Product Group Key] not in (223,224,225,226,227,228) -- excludes Nature</CommandText>
+      </Query>
+      <Fields>
+        <Field Name="Product_Group_Key">
+          <DataField>Product Group Key</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="Product_Title">
+          <DataField>Product Title</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="dt_dw_backfile_gaps_palgrave">
+      <Query>
+        <DataSourceName>dt_dpt_warehouse_live</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@pt_product">
+            <Value>=Parameters!pt_product.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@pt_country">
+            <Value>=Parameters!pt_country.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@pt_access_type">
+            <Value>=Parameters!pt_access_type.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@pt_state">
+            <Value>=Parameters!pt_state.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandText>--recursive CTE to generate a record for each available year by title
+--parameterised by region
+--future improvement - year_pub storage
+--**Palgrave only**
+
+--OPRA-1339-added code to allow state filter
+--OPRA-1337-Consortia data added
+--OPRA-1364-Only certain journals have GF
+--OPRA-1376-re-implemented the pre-1997 dates
+--OPRA-1401-Svenja issues
+
+--test variables, comment out when not in use
+/*
+DECLARE @pt_access_type int;
+SET @pt_access_type = 0;
+
+DECLARE @pt_country varchar(60);
+SET @pt_country = 'Japan';
+
+DECLARE @pt_state varchar(60);
+SET @pt_state = '*n/a*';
+
+DECLARE @pt_product varchar(100);
+SET @pt_product = 'Nature Biotechnology';
+*/
+
+WITH cte_year ([Product Group Key], [Product Title], year_pub, launch_date)
+AS
+(
+	SELECT pg.[Product Group Key],pg.[Product Title],
+		CASE 
+			WHEN pg.[Product Title] in ('') THEN YEAR(GETDATE()) --rolling access
+			WHEN year(pg.[Launch Date]) = 1960 THEN 1997  --default to 1997 where launch date is 1960	
+			ELSE year(pg.[Launch Date]) --default to launch date year
+		END AS 'first_year'			--in lieu of table for year of first publication, 
+		,year(pg.[Launch Date]) as 'launch_date'
+	FROM dim.ProductGroup pg		
+	WHERE pg.[Product Group Type] = 'DW' 
+		and pg.[Product Title] in (@pt_product)
+
+	UNION ALL
+	 
+	SELECT [Product Group Key], [Product Title],  year_pub + 1, launch_date
+	FROM cte_year
+	WHERE year_pub &lt; year(getdate())
+		
+)
+
+--
+SELECT bfg.year_pub
+	, bfg.[Organisation ID] --OPRA-1401
+	, bfg.[SID2 ID], bfg.[Full Name],bfg.Country
+	, bfg.[Product Group Key]	
+	, bfg.[Organisation Class1] 
+		+ CASE WHEN bfg.[Organisation Class2] Is not null THEN ' - ' + bfg.[Organisation Class2] END 
+		+ CASE WHEN bfg.[Organisation Class3] Is not null THEN ' - ' + bfg.[Organisation Class3] END	
+		AS 'organisation_class'
+	, bfg.consortia
+	, bfg.sales_rep	
+	, bfg.[Product Title]
+	, bfg.launch_date
+	, bfg.current_sl_start
+	, bfg.max_expire
+	, bfg.min_start as 'first_sl_start'
+	, MAX(bfg.code) as 'max_code'
+	--, archive	
+	, CASE
+		WHEN bfg.[Is Country] = 0 THEN bfg.State
+		ELSE null
+	END AS 'state'
+	, CASE	
+		WHEN bfg.retained_access is null THEN 0
+		ELSE 1
+	END AS 'retained_access'		
+	, CASE	
+		WHEN bfg.current_access_fee is null THEN 0
+		ELSE 1
+	END AS 'current_access_fee'	
+	, CASE	
+		WHEN bfg.current_site_licence is null THEN 0
+		ELSE 1
+	END AS 'current_site_licence'		
+		
+	--returns one code from group, based on evaluation order below
+	, CASE	
+		--grandfather rights
+		--code added to handle GF for non-nature NPG
+		--WHEN bfg.year_pub &gt;= 1997 and bfg.year_pub &lt; 2007 and bfg.retained_access is not null and bfg.current_site_licence is  not null 
+		--	and ( [Product Title] = 'Nature Biotechnology' or [Product Title] = 'Nature Genetics' 
+		--	or [Product Title] = 'Nature Structural &amp; Molecular Biology' or [Product Title] = 'Nature Medicine')
+		--	THEN 'GF'
+		--current site licence
+		WHEN bfg.year_pub = year(getdate()) and MAX(bfg.code) = 2 and ((bfg.current_access_fee is not null) or (bfg.current_site_licence is not null)) THEN 'SL'
+		--post cancellation rights
+		WHEN bfg.year_pub &lt;&gt; year(getdate()) and MAX(bfg.code)= 2 and ((bfg.current_access_fee is not null) or (bfg.current_site_licence is not null)) THEN 'PC'
+		--back file
+		WHEN MAX(bfg.code)= 1 and ((bfg.current_access_fee is not null) or (bfg.current_site_licence is not null)) THEN 'BF'
+		--inactive back file
+		WHEN MAX(bfg.code)= 1 and ((bfg.current_access_fee is  null) and  (bfg.current_site_licence is  null)) THEN '(BF)'
+		--inactive post cancellation rights
+		WHEN MAX(bfg.code)= 2 and ((bfg.current_access_fee is  null) and  (bfg.current_site_licence is  null)) THEN '(PC)'
+		
+		ELSE '(P)'
+	END as 'code'	
+FROM
+	(
+		SELECT cy.*, o.[Full Name]
+			, o.[Organisation ID] --OPRA-1401
+			, oc.Name
+			, oc.[Organisation Class1]
+			, oc.[Organisation Class2]
+			, oc.[Organisation Class3]
+			, sr.sales_rep
+			, o.[SID2 ID]
+			, p.[Start Date], p.[Expire Date]
+			, p.[Subscription Category]
+			, l.Country		
+			, l.State
+			, l.[Is Country]
+			, c.consortia
+			, caf.[Organisation ID] as 'current_access_fee'
+			, cs.[Organisation ID] as 'current_site_licence'
+			, cs.max_start as 'current_sl_start'
+			, cs.max_expire
+			, esl.min_start
+		
+			--code
+			, CASE	
+				--AR
+				--WHEN p.[Subscription Category] = 'Archive'
+				--	and (p.[Start Date] = CAST('1 January' + CAST(cy.year_pub as varchar)as datetime)) 
+				--	and (p.[Expire Date] = CAST('31 December' + CAST(cy.archive as varchar)as datetime)) 
+				--THEN 3 --'AR'
+				--AR for 1997-2006
+				WHEN p.[Subscription Category] = 'Archive'
+					and (p.[Start Date] &lt;= CAST('31 December' + CAST(cy.year_pub as varchar)as datetime))
+					and (p.[Expire Date] &gt;= CAST('1 January' + CAST(cy.year_pub as varchar)as datetime)) 
+				THEN  3 --'AR'
+				-- SL
+				WHEN p.[Subscription Category] = 'Site Licence' 
+					and (p.[Start Date] &lt;= CAST('31 December' + CAST(cy.year_pub as varchar)as datetime)) 
+					and (p.[Expire Date] &gt;= CAST('1 January' + CAST(cy.year_pub as varchar)as datetime)) 
+				THEN 2 --'SL' 
+				-- backfile
+				WHEN p.[Subscription Category] = 'Back File' 
+					and (p.[Start Date] &lt;= CAST('31 December' + CAST(cy.year_pub as varchar)as datetime)) 
+					and (p.[Expire Date] &gt;= CAST('1 January' + CAST(cy.year_pub as varchar)as datetime)) 
+				THEN 1 --'BF'				
+				ELSE 0 --' '		
+			END as 'code'
+			, p.retained_access
+		FROM cte_year cy
+			cross join Nature_Warehouse.[dim].Organisation o
+			inner join Nature_Warehouse.[dim].location l on o.[Location Key] = l.[Location Key]	
+			inner join Nature_Warehouse.[dim].OrganisationClass oc on o.[Organisation Class Key] = oc.[Organisation Class Key]
+		
+			--consortia acronyms
+			left join
+			(
+				SELECT co.[From Organisation Key], Left( co.Acro,Len(co.Acro)-1) as 'consortia'
+				FROM
+				(
+					SELECT DISTINCT co2.[From Organisation Key],
+						(
+							SELECT DISTINCT co1.Acronym + ','
+							FROM 
+							(
+								SELECT a.[From Organisation Key], c.[Consortium ID], c.Acronym
+								FROm fact.Affiliations a
+									inner join dim.Consortium c on a.[To Organisation Key] = c.[Organisation Key]
+								WHERE a.[Affiliation Type ID] = 1 --member of consortium
+							)co1
+							WHERE co1.[From Organisation Key] = co2.[From Organisation Key]
+							FOR XML PATH ('') 
+						) acro
+					FROM 
+					(
+						SELECT a.[From Organisation Key], c.[Consortium ID], c.Acronym
+						FROm fact.Affiliations a
+							inner join dim.Consortium c on a.[To Organisation Key] = c.[Organisation Key]
+						WHERE a.[Affiliation Type ID] = 1 --member of consortium
+					)co2
+				) co
+			) c on o.[Organisation Key] = c.[From Organisation Key]
+			
+			--sales rep
+			--OPRA-1401-amended to use org id
+			left join 
+			(
+				SELECT osr.[Organisation ID], sr.Name as 'sales_rep'
+				FROM fact.OrganisationSalesRep osr 
+					inner join dim.SalesRep sr on osr.[Sales Rep Key] = sr.[Sales Rep Key]
+				WHERE osr.[Is Current] = 1 -- current rep
+					and osr.[Business Unit ID]= 2 -- Palgrave Journals
+			) sr on o.[Organisation ID] = sr.[Organisation ID]
+			
+			--retained access	
+			--OPRA-1401-amended to use org id		
+			left join 
+			(
+				SELECT o.[Organisation ID], pg.[Product Group Key],
+					s.[Order Header ID], s.[Order Item Seq],s.[Start Date],s.[Expire Date],s.[Cancellation Date],
+					p.[Subscription Category],
+					CASE	
+						WHEN s.[Start Date] &gt;= CAST('1 January 2006' as datetime)
+							and s.[Expire Date] &lt; CAST('1 March 2007' as datetime)
+							and s.[Cancellation Date] is null
+							and p.[Subscription Category] = 'Site Licence'
+						THEN 1
+						ELSE 0
+					END AS 'retained_access'
+				FROM Nature_Warehouse.[dim].Organisation o
+					inner join Nature_Warehouse.[dim].CustomerAddress ca on o.[Organisation ID]=ca.[Organisation ID]
+					inner join Nature_Warehouse.[fact].[Sales] s on s.[Ship To Customer Key]=ca.[Customer Key]
+					inner join Nature_Warehouse.[dim].Product p on s.[Unpackaged Product Key]=p.[Product Key]
+					inner join Nature_Warehouse.[dim].ProductGroup pg on p.[DW Product Group Key]=pg.[Product Group Key]
+					inner join Nature_Warehouse.[dim].location l on o.[Location Key] = l.[Location Key]											
+				WHERE l.Country in (@pt_country)	
+					and 
+					(
+						'*n/a*' in (@pt_state)
+						or l.State in (@pt_state)
+					) --OPRA-1339-only selected states, or all if n/a selected
+					and o.[is current] = 1 --current orgs only			
+					and pg.[Product Title] in (@pt_product)
+					and p.[Revenue Method] &lt;&gt; 'Print'	--non-print products
+					and s.[Cancellation Date] is null	--excludes cancelled orders 					
+					
+			) p on o.[Organisation ID] = p.[Organisation ID] 
+				and cy.[Product Group Key] = p.[Product Group Key]
+				and (p.[Start Date] &lt;= CAST('31 December' + CAST(cy.year_pub as varchar)as datetime)) 
+				and (p.[Expire Date] &gt;= CAST('1 January' + CAST(cy.year_pub as varchar)as datetime)) 
+				
+			--current access fee	
+			--OPRA-1401-amended to use org id	
+			left join
+			(		
+				SELECT o.[Organisation ID],pg.[Product Group Key]
+				FROM Nature_Warehouse.[dim].Organisation o
+					inner join Nature_Warehouse.[dim].CustomerAddress ca on o.[Organisation ID]=ca.[Organisation ID]
+					inner join Nature_Warehouse.[fact].[Sales] s on s.[Ship To Customer Key]=ca.[Customer Key]
+					inner join Nature_Warehouse.[dim].Product p on s.[Unpackaged Product Key]=p.[Product Key]
+					inner join Nature_Warehouse.[dim].ProductGroup pg on p.[DW Product Group Key]=pg.[Product Group Key]
+					inner join Nature_Warehouse.[dim].location l on o.[Location Key] = l.[Location Key]	
+				WHERE s.[Cancellation Date] is null
+					and s.[Start Date] &lt; GETDATE()
+					and s.[Expire Date] &gt; GETDATE()
+					and p.[Subscription Category] in ('Access Fee Fixed','Access Fee Custom Archve','Access Fee Custom PCA')
+					and l.Country in (@pt_country)
+					and 
+					(
+						'*n/a*' in (@pt_state)
+						or l.State in (@pt_state)
+					) --OPRA-1339-only selected states, or all if n/a selected
+					and o.[is current] = 1 --current orgs only
+					and pg.[Product Title] in (@pt_product)
+				GROUP BY o.[Organisation ID],pg.[Product Group Key]
+			) caf on o.[Organisation ID] = caf.[Organisation ID] 
+				and cy.[Product Group Key] = caf.[Product Group Key]
+			
+			--current site licence
+			--OPRA-1401-amended to use org id
+			left join
+			(		
+				SELECT o.[Organisation ID],pg.[Product Group Key]
+					, max(s.[Start Date]) as 'max_start'
+					, max(s.[Expire Date]) as 'max_expire'	
+				FROM Nature_Warehouse.[dim].Organisation o
+					inner join Nature_Warehouse.[dim].CustomerAddress ca on o.[Organisation ID]=ca.[Organisation ID]
+					inner join Nature_Warehouse.[fact].[Sales] s on s.[Ship To Customer Key]=ca.[Customer Key]
+					inner join Nature_Warehouse.[dim].Product p on s.[Unpackaged Product Key]=p.[Product Key]
+					inner join Nature_Warehouse.[dim].ProductGroup pg on p.[DW Product Group Key]=pg.[Product Group Key]
+					inner join Nature_Warehouse.[dim].location l on o.[Location Key] = l.[Location Key]	
+				WHERE s.[Cancellation Date] is null
+					and s.[Start Date] &lt; GETDATE()
+					and s.[Expire Date] &gt; GETDATE()
+					and p.[Subscription Category] in ('Site Licence')
+					and l.Country in (@pt_country)
+					and 
+					(
+						'*n/a*' in (@pt_state)
+						or l.State in (@pt_state)
+					) --OPRA-1339-only selected states, or all if n/a selected
+					and o.[is current] = 1 --current orgs only
+					and pg.[Product Title] in (@pt_product)
+				GROUP BY o.[Organisation ID],pg.[Product Group Key]
+			) cs on o.[Organisation ID] = cs.[Organisation ID] 
+				and cy.[Product Group Key] = cs.[Product Group Key] 			
+			
+			--earliest site licence
+			--OPRA-1401-amended to use org id
+			left join
+			(
+				SELECT o.[Organisation ID],pg.[Product Group Key]
+					, min(s.[Start Date]) as 'min_start'
+				FROM Nature_Warehouse.[dim].Organisation o
+					inner join Nature_Warehouse.[dim].CustomerAddress ca on o.[Organisation ID]=ca.[Organisation ID]
+					inner join Nature_Warehouse.[fact].[Sales] s on s.[Ship To Customer Key]=ca.[Customer Key]
+					inner join Nature_Warehouse.[dim].Product p on s.[Unpackaged Product Key]=p.[Product Key]
+					inner join Nature_Warehouse.[dim].ProductGroup pg on p.[DW Product Group Key]=pg.[Product Group Key]
+					inner join Nature_Warehouse.[dim].location l on o.[Location Key] = l.[Location Key]	
+				WHERE s.[Cancellation Date] is null			
+					and p.[Subscription Category] in ('Site Licence')
+					and l.Country in (@pt_country)
+					and 
+					(
+						'*n/a*' in (@pt_state)
+						or l.State in (@pt_state)
+					) --OPRA-1339-only selected states, or all if n/a selected
+					and o.[is current] = 1 --current orgs only		
+					and pg.[Product Title] in (@pt_product)
+				GROUP BY o.[Organisation ID],pg.[Product Group Key]
+			) esl on o.[Organisation ID] = esl.[Organisation ID] 
+				and cy.[Product Group Key] = esl.[Product Group Key]
+			
+		WHERE l.Country in (@pt_country)
+			and o.[is current] = 1 --current orgs only	
+			and 
+					(
+						'*n/a*' in (@pt_state)
+						or l.State in (@pt_state)
+					) --OPRA-1339-only selected states, or all if n/a selected
+			and 
+			(
+				@pt_access_type = 0
+				Or @pt_access_type = 1 and ((cs.[Organisation ID] is not null) and (caf.[Organisation ID] is  null ))
+				Or @pt_access_type = 2 and ((cs.[Organisation ID] is  null) and( caf.[Organisation ID] is not  null ))
+				Or @pt_access_type = 3 and ((cs.[Organisation ID] is  null )and (caf.[Organisation ID] is  null ))
+			)				
+	) bfg
+	
+GROUP BY bfg.year_pub
+	, bfg.[Organisation ID]
+	, bfg.[Full Name],bfg.Country, bfg.[SID2 ID]
+	, bfg.[Product Group Key], bfg.[Product Title]
+	, bfg.retained_access --retained access
+	--, bfg.[Organisation Key] --continuous site licence
+	, bfg.current_access_fee -- current access fee
+	, bfg.current_site_licence --current site licence
+	, bfg.Name
+	, bfg.[Organisation Class1]
+	, bfg.[Organisation Class2]
+	, bfg.[Organisation Class3]
+	, bfg.current_access_fee, bfg.current_site_licence, bfg.[Product Group Key], bfg.[Product Title]
+	, bfg.sales_rep
+	, bfg.current_sl_start
+	, bfg.max_expire
+	, bfg.State
+	, bfg.[Is Country]
+	, bfg.min_start
+	, bfg.launch_date
+	, bfg.consortia
+ORDER BY bfg.[Organisation ID],bfg.[Product Title],bfg.year_pub</CommandText>
+      </Query>
+      <Fields>
+        <Field Name="year_pub">
+          <DataField>year_pub</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="Organisation_ID">
+          <DataField>Organisation ID</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="SID2_ID">
+          <DataField>SID2 ID</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="Full_Name">
+          <DataField>Full Name</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Country">
+          <DataField>Country</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Product_Group_Key">
+          <DataField>Product Group Key</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="organisation_class">
+          <DataField>organisation_class</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="sales_rep">
+          <DataField>sales_rep</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="consortia">
+          <DataField>consortia</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Product_Title">
+          <DataField>Product Title</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="launch_date">
+          <DataField>launch_date</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="current_sl_start">
+          <DataField>current_sl_start</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="max_expire">
+          <DataField>max_expire</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="first_sl_start">
+          <DataField>first_sl_start</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="max_code">
+          <DataField>max_code</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="state">
+          <DataField>state</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="retained_access">
+          <DataField>retained_access</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="current_access_fee">
+          <DataField>current_access_fee</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="current_site_licence">
+          <DataField>current_site_licence</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="code">
+          <DataField>code</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="dt_dw_state_ptv">
+      <SharedDataSet>
+        <SharedDataSetReference>dt_dw_state_ptv</SharedDataSetReference>
+        <QueryParameters>
+          <QueryParameter Name="@pt_country">
+            <Value>=Parameters!pt_country.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </SharedDataSet>
+      <Fields>
+        <Field Name="state">
+          <DataField>state</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <ReportSections>
+    <ReportSection>
+      <Body>
+        <ReportItems>
+          <Textbox Name="Textbox14">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>Backfile gaps - Palgrave Journals  </Value>
+                    <Style>
+                      <FontWeight>Bold</FontWeight>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style>
+                  <TextAlign>Left</TextAlign>
+                </Style>
+              </Paragraph>
+            </Paragraphs>
+            <rd:DefaultName>Textbox14</rd:DefaultName>
+            <Left>0.00001cm</Left>
+            <Height>0.6cm</Height>
+            <Width>31.40166cm</Width>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox16">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>=Globals!ExecutionTime</Value>
+                    <Style>
+                      <FontStyle>Italic</FontStyle>
+                      <FontSize>8pt</FontSize>
+                      <Format>dd/MM/yyyy HH:mm:ss</Format>
+                    </Style>
+                  </TextRun>
+                  <TextRun>
+                    <Value> - </Value>
+                    <Style>
+                      <FontStyle>Italic</FontStyle>
+                      <FontSize>8pt</FontSize>
+                    </Style>
+                  </TextRun>
+                  <TextRun>
+                    <Value>=Globals!ReportName</Value>
+                    <Style>
+                      <FontStyle>Italic</FontStyle>
+                      <FontSize>8pt</FontSize>
+                    </Style>
+                  </TextRun>
+                  <TextRun>
+                    <Value> - for information regarding the Backfile Gap reports - </Value>
+                    <Style>
+                      <FontStyle>Italic</FontStyle>
+                      <FontSize>8pt</FontSize>
+                    </Style>
+                  </TextRun>
+                  <TextRun>
+                    <Value>please follow this link</Value>
+                    <ActionInfo>
+                      <Actions>
+                        <Action>
+                          <Hyperlink>https://campus.macmillan.com/docs/DOC-8973</Hyperlink>
+                        </Action>
+                      </Actions>
+                    </ActionInfo>
+                    <Style>
+                      <FontStyle>Italic</FontStyle>
+                      <FontSize>8pt</FontSize>
+                      <TextDecoration>Underline</TextDecoration>
+                      <Color>MediumBlue</Color>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style>
+                  <TextAlign>Left</TextAlign>
+                </Style>
+              </Paragraph>
+            </Paragraphs>
+            <rd:DefaultName>Textbox14</rd:DefaultName>
+            <Top>0.6cm</Top>
+            <Left>0.00001cm</Left>
+            <Height>0.6cm</Height>
+            <Width>31.40166cm</Width>
+            <ZIndex>1</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
+          <Tablix Name="tbx_backfile_gaps">
+            <TablixCorner>
+              <TablixCornerRows>
+                <TablixCornerRow>
+                  <TablixCornerCell>
+                    <CellContents>
+                      <Textbox Name="Textbox15">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>Full name</Value>
+                                <Style>
+                                  <FontSize>8pt</FontSize>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox15</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>LightGrey</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixCornerCell>
+                  <TablixCornerCell>
+                    <CellContents>
+                      <Textbox Name="Textbox3">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>SID2 ID</Value>
+                                <Style>
+                                  <FontSize>8pt</FontSize>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox3</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>LightGrey</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixCornerCell>
+                  <TablixCornerCell>
+                    <CellContents>
+                      <Textbox Name="Textbox21">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>Sales rep</Value>
+                                <Style>
+                                  <FontSize>8pt</FontSize>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox21</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>LightGrey</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixCornerCell>
+                  <TablixCornerCell>
+                    <CellContents>
+                      <Textbox Name="Textbox5">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>Org class</Value>
+                                <Style>
+                                  <FontSize>8pt</FontSize>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox5</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>LightGrey</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixCornerCell>
+                  <TablixCornerCell>
+                    <CellContents>
+                      <Textbox Name="Textbox7">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>Consortia</Value>
+                                <Style>
+                                  <FontSize>8pt</FontSize>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox7</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>LightGrey</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixCornerCell>
+                  <TablixCornerCell>
+                    <CellContents>
+                      <Textbox Name="Textbox22">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>Country</Value>
+                                <Style>
+                                  <FontSize>8pt</FontSize>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox22</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>LightGrey</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixCornerCell>
+                  <TablixCornerCell>
+                    <CellContents>
+                      <Textbox Name="Textbox6">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>State</Value>
+                                <Style>
+                                  <FontSize>8pt</FontSize>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox6</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>LightGrey</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixCornerCell>
+                  <TablixCornerCell>
+                    <CellContents>
+                      <Textbox Name="Textbox18">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>Product title</Value>
+                                <Style>
+                                  <FontSize>8pt</FontSize>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox18</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>LightGrey</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixCornerCell>
+                  <TablixCornerCell>
+                    <CellContents>
+                      <Textbox Name="Textbox10">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>Launch year</Value>
+                                <Style>
+                                  <FontSize>8pt</FontSize>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox10</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>LightGrey</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixCornerCell>
+                  <TablixCornerCell>
+                    <CellContents>
+                      <Textbox Name="Textbox8">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>First SL start</Value>
+                                <Style>
+                                  <FontSize>8pt</FontSize>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox8</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>LightGrey</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixCornerCell>
+                  <TablixCornerCell>
+                    <CellContents>
+                      <Textbox Name="Textbox4">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>Current SL start</Value>
+                                <Style>
+                                  <FontSize>8pt</FontSize>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox4</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>LightGrey</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixCornerCell>
+                  <TablixCornerCell>
+                    <CellContents>
+                      <Textbox Name="Textbox26">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>Current site licence</Value>
+                                <Style>
+                                  <FontSize>8pt</FontSize>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox26</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>LightGrey</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixCornerCell>
+                  <TablixCornerCell>
+                    <CellContents>
+                      <Textbox Name="Textbox28">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>Current access fee</Value>
+                                <Style>
+                                  <FontSize>8pt</FontSize>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox28</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>LightGrey</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixCornerCell>
+                  <TablixCornerCell>
+                    <CellContents>
+                      <Textbox Name="Textbox1">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>Holdings</Value>
+                                <Style>
+                                  <FontSize>8pt</FontSize>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox1</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>LightGrey</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixCornerCell>
+                </TablixCornerRow>
+              </TablixCornerRows>
+            </TablixCorner>
+            <TablixBody>
+              <TablixColumns>
+                <TablixColumn>
+                  <Width>1.75255cm</Width>
+                </TablixColumn>
+              </TablixColumns>
+              <TablixRows>
+                <TablixRow>
+                  <Height>0.6cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="code">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!code.Value</Value>
+                                  <Style>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>=Switch(Fields!code.Value = "(P)","Pink",
+True,"Black")</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>code</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>=Switch(Fields!code.Value = " ","Pink",
+Fields!code.Value = "SL","IndianRed",
+Fields!code.Value = "PC","IndianRed",
+Fields!code.Value = "BF","IndianRed",
+Fields!code.Value = "GF","IndianRed",
+Fields!code.Value = "AR","IndianRed",
+Fields!code.Value = "(AR)","Pink",
+Fields!code.Value = "(BF)","Pink",
+Fields!code.Value = "(PC)","Pink",
+Fields!code.Value = "(P)","Pink")</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+              </TablixRows>
+            </TablixBody>
+            <TablixColumnHierarchy>
+              <TablixMembers>
+                <TablixMember>
+                  <Group Name="year_pub">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!year_pub.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Group>
+                  <SortExpressions>
+                    <SortExpression>
+                      <Value>=Fields!year_pub.Value</Value>
+                    </SortExpression>
+                  </SortExpressions>
+                  <TablixHeader>
+                    <Size>0.6cm</Size>
+                    <CellContents>
+                      <Textbox Name="year_pub">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>=Fields!year_pub.Value</Value>
+                                <Style>
+                                  <FontSize>8pt</FontSize>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style>
+                              <TextAlign>Center</TextAlign>
+                            </Style>
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>year_pub</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>LightGrey</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                </TablixMember>
+              </TablixMembers>
+            </TablixColumnHierarchy>
+            <TablixRowHierarchy>
+              <TablixMembers>
+                <TablixMember>
+                  <Group Name="Group1">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!Full_Name.Value &amp; Fields!Product_Title.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Group>
+                  <SortExpressions>
+                    <SortExpression>
+                      <Value>=Fields!SID2_ID.Value + Fields!Product_Group_Key.Value</Value>
+                    </SortExpression>
+                  </SortExpressions>
+                  <TablixMembers>
+                    <TablixMember>
+                      <Group Name="Full_Name">
+                        <GroupExpressions>
+                          <GroupExpression>=Fields!Full_Name.Value</GroupExpression>
+                        </GroupExpressions>
+                      </Group>
+                      <SortExpressions>
+                        <SortExpression>
+                          <Value>=Fields!Full_Name.Value</Value>
+                        </SortExpression>
+                      </SortExpressions>
+                      <TablixMembers>
+                        <TablixMember>
+                          <TablixHeader>
+                            <Size>2.28172cm</Size>
+                            <CellContents>
+                              <Textbox Name="Full_Name">
+                                <CanGrow>true</CanGrow>
+                                <KeepTogether>true</KeepTogether>
+                                <Paragraphs>
+                                  <Paragraph>
+                                    <TextRuns>
+                                      <TextRun>
+                                        <Value>=Fields!Full_Name.Value</Value>
+                                        <Style>
+                                          <FontSize>8pt</FontSize>
+                                        </Style>
+                                      </TextRun>
+                                    </TextRuns>
+                                    <Style>
+                                      <TextAlign>Left</TextAlign>
+                                    </Style>
+                                  </Paragraph>
+                                </Paragraphs>
+                                <rd:DefaultName>Full_Name</rd:DefaultName>
+                                <Style>
+                                  <Border>
+                                    <Color>LightGrey</Color>
+                                    <Style>Solid</Style>
+                                  </Border>
+                                  <VerticalAlign>Middle</VerticalAlign>
+                                  <PaddingLeft>2pt</PaddingLeft>
+                                  <PaddingRight>2pt</PaddingRight>
+                                  <PaddingTop>2pt</PaddingTop>
+                                  <PaddingBottom>2pt</PaddingBottom>
+                                </Style>
+                              </Textbox>
+                            </CellContents>
+                          </TablixHeader>
+                          <TablixMembers>
+                            <TablixMember>
+                              <Group Name="SID2_ID">
+                                <GroupExpressions>
+                                  <GroupExpression>=Fields!SID2_ID.Value</GroupExpression>
+                                </GroupExpressions>
+                              </Group>
+                              <SortExpressions>
+                                <SortExpression>
+                                  <Value>=Fields!SID2_ID.Value</Value>
+                                </SortExpression>
+                              </SortExpressions>
+                              <TablixHeader>
+                                <Size>1.30307cm</Size>
+                                <CellContents>
+                                  <Textbox Name="SID2_ID">
+                                    <CanGrow>true</CanGrow>
+                                    <KeepTogether>true</KeepTogether>
+                                    <Paragraphs>
+                                      <Paragraph>
+                                        <TextRuns>
+                                          <TextRun>
+                                            <Value>=Fields!SID2_ID.Value</Value>
+                                            <Style>
+                                              <FontSize>8pt</FontSize>
+                                            </Style>
+                                          </TextRun>
+                                        </TextRuns>
+                                        <Style>
+                                          <TextAlign>Left</TextAlign>
+                                        </Style>
+                                      </Paragraph>
+                                    </Paragraphs>
+                                    <rd:DefaultName>SID2_ID</rd:DefaultName>
+                                    <Style>
+                                      <Border>
+                                        <Color>LightGrey</Color>
+                                        <Style>Solid</Style>
+                                      </Border>
+                                      <VerticalAlign>Middle</VerticalAlign>
+                                      <PaddingLeft>2pt</PaddingLeft>
+                                      <PaddingRight>2pt</PaddingRight>
+                                      <PaddingTop>2pt</PaddingTop>
+                                      <PaddingBottom>2pt</PaddingBottom>
+                                    </Style>
+                                  </Textbox>
+                                </CellContents>
+                              </TablixHeader>
+                              <TablixMembers>
+                                <TablixMember>
+                                  <Group Name="sales_rep">
+                                    <GroupExpressions>
+                                      <GroupExpression>=Fields!sales_rep.Value</GroupExpression>
+                                    </GroupExpressions>
+                                  </Group>
+                                  <SortExpressions>
+                                    <SortExpression>
+                                      <Value>=Fields!sales_rep.Value</Value>
+                                    </SortExpression>
+                                  </SortExpressions>
+                                  <TablixMembers>
+                                    <TablixMember>
+                                      <TablixHeader>
+                                        <Size>2.02375cm</Size>
+                                        <CellContents>
+                                          <Textbox Name="sales_rep">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Fields!sales_rep.Value</Value>
+                                                    <Style>
+                                                      <FontSize>8pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style>
+                                                  <TextAlign>Left</TextAlign>
+                                                </Style>
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>sales_rep</rd:DefaultName>
+                                            <Style>
+                                              <Border>
+                                                <Color>LightGrey</Color>
+                                                <Style>Solid</Style>
+                                              </Border>
+                                              <VerticalAlign>Middle</VerticalAlign>
+                                              <PaddingLeft>2pt</PaddingLeft>
+                                              <PaddingRight>2pt</PaddingRight>
+                                              <PaddingTop>2pt</PaddingTop>
+                                              <PaddingBottom>2pt</PaddingBottom>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixHeader>
+                                      <TablixMembers>
+                                        <TablixMember>
+                                          <Group Name="organisation_class">
+                                            <GroupExpressions>
+                                              <GroupExpression>=Fields!organisation_class.Value</GroupExpression>
+                                            </GroupExpressions>
+                                          </Group>
+                                          <SortExpressions>
+                                            <SortExpression>
+                                              <Value>=Fields!organisation_class.Value</Value>
+                                            </SortExpression>
+                                          </SortExpressions>
+                                          <TablixHeader>
+                                            <Size>2.5cm</Size>
+                                            <CellContents>
+                                              <Textbox Name="organisation_class">
+                                                <CanGrow>true</CanGrow>
+                                                <KeepTogether>true</KeepTogether>
+                                                <Paragraphs>
+                                                  <Paragraph>
+                                                    <TextRuns>
+                                                      <TextRun>
+                                                        <Value>=Fields!organisation_class.Value</Value>
+                                                        <Style>
+                                                          <FontSize>8pt</FontSize>
+                                                        </Style>
+                                                      </TextRun>
+                                                    </TextRuns>
+                                                    <Style>
+                                                      <TextAlign>Left</TextAlign>
+                                                    </Style>
+                                                  </Paragraph>
+                                                </Paragraphs>
+                                                <rd:DefaultName>organisation_class</rd:DefaultName>
+                                                <Style>
+                                                  <Border>
+                                                    <Color>LightGrey</Color>
+                                                    <Style>Solid</Style>
+                                                  </Border>
+                                                  <VerticalAlign>Middle</VerticalAlign>
+                                                  <PaddingLeft>2pt</PaddingLeft>
+                                                  <PaddingRight>2pt</PaddingRight>
+                                                  <PaddingTop>2pt</PaddingTop>
+                                                  <PaddingBottom>2pt</PaddingBottom>
+                                                </Style>
+                                              </Textbox>
+                                            </CellContents>
+                                          </TablixHeader>
+                                          <TablixMembers>
+                                            <TablixMember>
+                                              <Group Name="consortia">
+                                                <GroupExpressions>
+                                                  <GroupExpression>=Fields!consortia.Value</GroupExpression>
+                                                </GroupExpressions>
+                                              </Group>
+                                              <SortExpressions>
+                                                <SortExpression>
+                                                  <Value>=Fields!consortia.Value</Value>
+                                                </SortExpression>
+                                              </SortExpressions>
+                                              <TablixHeader>
+                                                <Size>2.5cm</Size>
+                                                <CellContents>
+                                                  <Textbox Name="consortia">
+                                                    <CanGrow>true</CanGrow>
+                                                    <KeepTogether>true</KeepTogether>
+                                                    <Paragraphs>
+                                                      <Paragraph>
+                                                        <TextRuns>
+                                                          <TextRun>
+                                                            <Value>=Fields!consortia.Value</Value>
+                                                            <Style>
+                                                              <FontSize>8pt</FontSize>
+                                                            </Style>
+                                                          </TextRun>
+                                                        </TextRuns>
+                                                        <Style>
+                                                          <TextAlign>Left</TextAlign>
+                                                        </Style>
+                                                      </Paragraph>
+                                                    </Paragraphs>
+                                                    <rd:DefaultName>consortia</rd:DefaultName>
+                                                    <Style>
+                                                      <Border>
+                                                        <Color>LightGrey</Color>
+                                                        <Style>Solid</Style>
+                                                      </Border>
+                                                      <VerticalAlign>Middle</VerticalAlign>
+                                                      <PaddingLeft>2pt</PaddingLeft>
+                                                      <PaddingRight>2pt</PaddingRight>
+                                                      <PaddingTop>2pt</PaddingTop>
+                                                      <PaddingBottom>2pt</PaddingBottom>
+                                                    </Style>
+                                                  </Textbox>
+                                                </CellContents>
+                                              </TablixHeader>
+                                              <TablixMembers>
+                                                <TablixMember>
+                                                  <Group Name="Country">
+                                                    <GroupExpressions>
+                                                      <GroupExpression>=Fields!Country.Value</GroupExpression>
+                                                    </GroupExpressions>
+                                                  </Group>
+                                                  <SortExpressions>
+                                                    <SortExpression>
+                                                      <Value>=Fields!Country.Value</Value>
+                                                    </SortExpression>
+                                                  </SortExpressions>
+                                                  <TablixHeader>
+                                                    <Size>1.99068cm</Size>
+                                                    <CellContents>
+                                                      <Textbox Name="Country">
+                                                        <CanGrow>true</CanGrow>
+                                                        <KeepTogether>true</KeepTogether>
+                                                        <Paragraphs>
+                                                          <Paragraph>
+                                                            <TextRuns>
+                                                              <TextRun>
+                                                                <Value>=Fields!Country.Value</Value>
+                                                                <Style>
+                                                                  <FontSize>8pt</FontSize>
+                                                                </Style>
+                                                              </TextRun>
+                                                            </TextRuns>
+                                                            <Style>
+                                                              <TextAlign>Left</TextAlign>
+                                                            </Style>
+                                                          </Paragraph>
+                                                        </Paragraphs>
+                                                        <rd:DefaultName>Country</rd:DefaultName>
+                                                        <Style>
+                                                          <Border>
+                                                            <Color>LightGrey</Color>
+                                                            <Style>Solid</Style>
+                                                          </Border>
+                                                          <VerticalAlign>Middle</VerticalAlign>
+                                                          <PaddingLeft>2pt</PaddingLeft>
+                                                          <PaddingRight>2pt</PaddingRight>
+                                                          <PaddingTop>2pt</PaddingTop>
+                                                          <PaddingBottom>2pt</PaddingBottom>
+                                                        </Style>
+                                                      </Textbox>
+                                                    </CellContents>
+                                                  </TablixHeader>
+                                                  <TablixMembers>
+                                                    <TablixMember>
+                                                      <Group Name="state">
+                                                        <GroupExpressions>
+                                                          <GroupExpression>=Fields!state.Value</GroupExpression>
+                                                        </GroupExpressions>
+                                                      </Group>
+                                                      <SortExpressions>
+                                                        <SortExpression>
+                                                          <Value>=Fields!state.Value</Value>
+                                                        </SortExpression>
+                                                      </SortExpressions>
+                                                      <TablixHeader>
+                                                        <Size>1.75255cm</Size>
+                                                        <CellContents>
+                                                          <Textbox Name="state">
+                                                            <CanGrow>true</CanGrow>
+                                                            <KeepTogether>true</KeepTogether>
+                                                            <Paragraphs>
+                                                              <Paragraph>
+                                                                <TextRuns>
+                                                                  <TextRun>
+                                                                    <Value>=Fields!state.Value</Value>
+                                                                    <Style>
+                                                                      <FontSize>8pt</FontSize>
+                                                                    </Style>
+                                                                  </TextRun>
+                                                                </TextRuns>
+                                                                <Style>
+                                                                  <TextAlign>Left</TextAlign>
+                                                                </Style>
+                                                              </Paragraph>
+                                                            </Paragraphs>
+                                                            <rd:DefaultName>state</rd:DefaultName>
+                                                            <Style>
+                                                              <Border>
+                                                                <Color>LightGrey</Color>
+                                                                <Style>Solid</Style>
+                                                              </Border>
+                                                              <VerticalAlign>Middle</VerticalAlign>
+                                                              <PaddingLeft>2pt</PaddingLeft>
+                                                              <PaddingRight>2pt</PaddingRight>
+                                                              <PaddingTop>2pt</PaddingTop>
+                                                              <PaddingBottom>2pt</PaddingBottom>
+                                                            </Style>
+                                                          </Textbox>
+                                                        </CellContents>
+                                                      </TablixHeader>
+                                                      <TablixMembers>
+                                                        <TablixMember>
+                                                          <Group Name="Product_Title">
+                                                            <GroupExpressions>
+                                                              <GroupExpression>=Fields!Product_Title.Value</GroupExpression>
+                                                            </GroupExpressions>
+                                                          </Group>
+                                                          <SortExpressions>
+                                                            <SortExpression>
+                                                              <Value>=Fields!Product_Title.Value</Value>
+                                                            </SortExpression>
+                                                          </SortExpressions>
+                                                          <TablixHeader>
+                                                            <Size>1.85839cm</Size>
+                                                            <CellContents>
+                                                              <Textbox Name="Product_Title">
+                                                                <CanGrow>true</CanGrow>
+                                                                <KeepTogether>true</KeepTogether>
+                                                                <Paragraphs>
+                                                                  <Paragraph>
+                                                                    <TextRuns>
+                                                                      <TextRun>
+                                                                        <Value>=Fields!Product_Title.Value</Value>
+                                                                        <Style>
+                                                                          <FontSize>8pt</FontSize>
+                                                                        </Style>
+                                                                      </TextRun>
+                                                                    </TextRuns>
+                                                                    <Style>
+                                                                      <TextAlign>Left</TextAlign>
+                                                                    </Style>
+                                                                  </Paragraph>
+                                                                </Paragraphs>
+                                                                <rd:DefaultName>Product_Title</rd:DefaultName>
+                                                                <Style>
+                                                                  <Border>
+                                                                    <Color>LightGrey</Color>
+                                                                    <Style>Solid</Style>
+                                                                  </Border>
+                                                                  <VerticalAlign>Middle</VerticalAlign>
+                                                                  <PaddingLeft>2pt</PaddingLeft>
+                                                                  <PaddingRight>2pt</PaddingRight>
+                                                                  <PaddingTop>2pt</PaddingTop>
+                                                                  <PaddingBottom>2pt</PaddingBottom>
+                                                                </Style>
+                                                              </Textbox>
+                                                            </CellContents>
+                                                          </TablixHeader>
+                                                          <TablixMembers>
+                                                            <TablixMember>
+                                                              <Group Name="launch_date">
+                                                                <GroupExpressions>
+                                                                  <GroupExpression>=Fields!launch_date.Value</GroupExpression>
+                                                                </GroupExpressions>
+                                                              </Group>
+                                                              <SortExpressions>
+                                                                <SortExpression>
+                                                                  <Value>=Fields!launch_date.Value</Value>
+                                                                </SortExpression>
+                                                              </SortExpressions>
+                                                              <TablixHeader>
+                                                                <Size>1.94438cm</Size>
+                                                                <CellContents>
+                                                                  <Textbox Name="launch_date">
+                                                                    <CanGrow>true</CanGrow>
+                                                                    <KeepTogether>true</KeepTogether>
+                                                                    <Paragraphs>
+                                                                      <Paragraph>
+                                                                        <TextRuns>
+                                                                          <TextRun>
+                                                                            <Value>=Fields!launch_date.Value</Value>
+                                                                            <Style>
+                                                                              <FontSize>8pt</FontSize>
+                                                                            </Style>
+                                                                          </TextRun>
+                                                                        </TextRuns>
+                                                                        <Style>
+                                                                          <TextAlign>Left</TextAlign>
+                                                                        </Style>
+                                                                      </Paragraph>
+                                                                    </Paragraphs>
+                                                                    <rd:DefaultName>launch_date</rd:DefaultName>
+                                                                    <Style>
+                                                                      <Border>
+                                                                        <Color>LightGrey</Color>
+                                                                        <Style>Solid</Style>
+                                                                      </Border>
+                                                                      <VerticalAlign>Middle</VerticalAlign>
+                                                                      <PaddingLeft>2pt</PaddingLeft>
+                                                                      <PaddingRight>2pt</PaddingRight>
+                                                                      <PaddingTop>2pt</PaddingTop>
+                                                                      <PaddingBottom>2pt</PaddingBottom>
+                                                                    </Style>
+                                                                  </Textbox>
+                                                                </CellContents>
+                                                              </TablixHeader>
+                                                              <TablixMembers>
+                                                                <TablixMember>
+                                                                  <Group Name="first_sl_start">
+                                                                    <GroupExpressions>
+                                                                      <GroupExpression>=Fields!first_sl_start.Value</GroupExpression>
+                                                                    </GroupExpressions>
+                                                                  </Group>
+                                                                  <SortExpressions>
+                                                                    <SortExpression>
+                                                                      <Value>=Fields!first_sl_start.Value</Value>
+                                                                    </SortExpression>
+                                                                  </SortExpressions>
+                                                                  <TablixHeader>
+                                                                    <Size>2.5cm</Size>
+                                                                    <CellContents>
+                                                                      <Textbox Name="first_sl_start">
+                                                                        <CanGrow>true</CanGrow>
+                                                                        <KeepTogether>true</KeepTogether>
+                                                                        <Paragraphs>
+                                                                          <Paragraph>
+                                                                            <TextRuns>
+                                                                              <TextRun>
+                                                                                <Value>=Fields!first_sl_start.Value</Value>
+                                                                                <Style>
+                                                                                  <FontSize>8pt</FontSize>
+                                                                                  <Format>d</Format>
+                                                                                </Style>
+                                                                              </TextRun>
+                                                                            </TextRuns>
+                                                                            <Style>
+                                                                              <TextAlign>Left</TextAlign>
+                                                                            </Style>
+                                                                          </Paragraph>
+                                                                        </Paragraphs>
+                                                                        <rd:DefaultName>first_sl_start</rd:DefaultName>
+                                                                        <Style>
+                                                                          <Border>
+                                                                            <Color>LightGrey</Color>
+                                                                            <Style>Solid</Style>
+                                                                          </Border>
+                                                                          <VerticalAlign>Middle</VerticalAlign>
+                                                                          <PaddingLeft>2pt</PaddingLeft>
+                                                                          <PaddingRight>2pt</PaddingRight>
+                                                                          <PaddingTop>2pt</PaddingTop>
+                                                                          <PaddingBottom>2pt</PaddingBottom>
+                                                                        </Style>
+                                                                      </Textbox>
+                                                                    </CellContents>
+                                                                  </TablixHeader>
+                                                                  <TablixMembers>
+                                                                    <TablixMember>
+                                                                      <Group Name="current_sl_start">
+                                                                        <GroupExpressions>
+                                                                          <GroupExpression>=Fields!current_sl_start.Value</GroupExpression>
+                                                                        </GroupExpressions>
+                                                                      </Group>
+                                                                      <SortExpressions>
+                                                                        <SortExpression>
+                                                                          <Value>=Fields!current_sl_start.Value</Value>
+                                                                        </SortExpression>
+                                                                      </SortExpressions>
+                                                                      <TablixHeader>
+                                                                        <Size>2.5cm</Size>
+                                                                        <CellContents>
+                                                                          <Textbox Name="current_sl_start">
+                                                                            <CanGrow>true</CanGrow>
+                                                                            <KeepTogether>true</KeepTogether>
+                                                                            <Paragraphs>
+                                                                              <Paragraph>
+                                                                                <TextRuns>
+                                                                                  <TextRun>
+                                                                                    <Value>=Fields!current_sl_start.Value</Value>
+                                                                                    <Style>
+                                                                                      <FontSize>8pt</FontSize>
+                                                                                      <Format>d</Format>
+                                                                                    </Style>
+                                                                                  </TextRun>
+                                                                                </TextRuns>
+                                                                                <Style>
+                                                                                  <TextAlign>Left</TextAlign>
+                                                                                </Style>
+                                                                              </Paragraph>
+                                                                            </Paragraphs>
+                                                                            <rd:DefaultName>current_sl_start</rd:DefaultName>
+                                                                            <Style>
+                                                                              <Border>
+                                                                                <Color>LightGrey</Color>
+                                                                                <Style>Solid</Style>
+                                                                              </Border>
+                                                                              <VerticalAlign>Middle</VerticalAlign>
+                                                                              <PaddingLeft>2pt</PaddingLeft>
+                                                                              <PaddingRight>2pt</PaddingRight>
+                                                                              <PaddingTop>2pt</PaddingTop>
+                                                                              <PaddingBottom>2pt</PaddingBottom>
+                                                                            </Style>
+                                                                          </Textbox>
+                                                                        </CellContents>
+                                                                      </TablixHeader>
+                                                                      <TablixMembers>
+                                                                        <TablixMember>
+                                                                          <Group Name="current_site_licence">
+                                                                            <GroupExpressions>
+                                                                              <GroupExpression>=Fields!current_site_licence.Value</GroupExpression>
+                                                                            </GroupExpressions>
+                                                                          </Group>
+                                                                          <SortExpressions>
+                                                                            <SortExpression>
+                                                                              <Value>=Fields!current_site_licence.Value</Value>
+                                                                            </SortExpression>
+                                                                          </SortExpressions>
+                                                                          <TablixHeader>
+                                                                            <Size>1.81208cm</Size>
+                                                                            <CellContents>
+                                                                              <Textbox Name="current_site_licence">
+                                                                                <CanGrow>true</CanGrow>
+                                                                                <KeepTogether>true</KeepTogether>
+                                                                                <Paragraphs>
+                                                                                  <Paragraph>
+                                                                                    <TextRuns>
+                                                                                      <TextRun>
+                                                                                        <Value>=iif(Fields!current_site_licence.Value = 0,"False","True")</Value>
+                                                                                        <Style>
+                                                                                          <FontSize>8pt</FontSize>
+                                                                                        </Style>
+                                                                                      </TextRun>
+                                                                                    </TextRuns>
+                                                                                    <Style>
+                                                                                      <TextAlign>Left</TextAlign>
+                                                                                    </Style>
+                                                                                  </Paragraph>
+                                                                                </Paragraphs>
+                                                                                <rd:DefaultName>current_site_licence</rd:DefaultName>
+                                                                                <Style>
+                                                                                  <Border>
+                                                                                    <Color>LightGrey</Color>
+                                                                                    <Style>Solid</Style>
+                                                                                  </Border>
+                                                                                  <VerticalAlign>Middle</VerticalAlign>
+                                                                                  <PaddingLeft>2pt</PaddingLeft>
+                                                                                  <PaddingRight>2pt</PaddingRight>
+                                                                                  <PaddingTop>2pt</PaddingTop>
+                                                                                  <PaddingBottom>2pt</PaddingBottom>
+                                                                                </Style>
+                                                                              </Textbox>
+                                                                            </CellContents>
+                                                                          </TablixHeader>
+                                                                          <TablixMembers>
+                                                                            <TablixMember>
+                                                                              <Group Name="current_access_fee">
+                                                                                <GroupExpressions>
+                                                                                  <GroupExpression>=Fields!current_access_fee.Value</GroupExpression>
+                                                                                </GroupExpressions>
+                                                                              </Group>
+                                                                              <SortExpressions>
+                                                                                <SortExpression>
+                                                                                  <Value>=Fields!current_access_fee.Value</Value>
+                                                                                </SortExpression>
+                                                                              </SortExpressions>
+                                                                              <TablixHeader>
+                                                                                <Size>2.1825cm</Size>
+                                                                                <CellContents>
+                                                                                  <Textbox Name="current_access_fee">
+                                                                                    <CanGrow>true</CanGrow>
+                                                                                    <KeepTogether>true</KeepTogether>
+                                                                                    <Paragraphs>
+                                                                                      <Paragraph>
+                                                                                        <TextRuns>
+                                                                                          <TextRun>
+                                                                                            <Value>=iif(Fields!current_access_fee.Value = 0,"False","True")</Value>
+                                                                                            <Style>
+                                                                                              <FontSize>8pt</FontSize>
+                                                                                            </Style>
+                                                                                          </TextRun>
+                                                                                        </TextRuns>
+                                                                                        <Style>
+                                                                                          <TextAlign>Left</TextAlign>
+                                                                                        </Style>
+                                                                                      </Paragraph>
+                                                                                    </Paragraphs>
+                                                                                    <rd:DefaultName>current_access_fee</rd:DefaultName>
+                                                                                    <Style>
+                                                                                      <Border>
+                                                                                        <Color>LightGrey</Color>
+                                                                                        <Style>Solid</Style>
+                                                                                      </Border>
+                                                                                      <VerticalAlign>Middle</VerticalAlign>
+                                                                                      <PaddingLeft>2pt</PaddingLeft>
+                                                                                      <PaddingRight>2pt</PaddingRight>
+                                                                                      <PaddingTop>2pt</PaddingTop>
+                                                                                      <PaddingBottom>2pt</PaddingBottom>
+                                                                                    </Style>
+                                                                                  </Textbox>
+                                                                                </CellContents>
+                                                                              </TablixHeader>
+                                                                              <TablixMembers>
+                                                                                <TablixMember>
+                                                                                  <TablixHeader>
+                                                                                    <Size>2.5cm</Size>
+                                                                                    <CellContents>
+                                                                                      <Textbox Name="Textbox2">
+                                                                                        <CanGrow>true</CanGrow>
+                                                                                        <KeepTogether>true</KeepTogether>
+                                                                                        <Paragraphs>
+                                                                                          <Paragraph>
+                                                                                            <TextRuns>
+                                                                                              <TextRun>
+                                                                                                <Value>=Fields!Full_Name.Value</Value>
+                                                                                                <ActionInfo>
+                                                                                                  <Actions>
+                                                                                                    <Action>
+                                                                                                      <Drillthrough>
+                                                                                                        <ReportName>SLBU_0016_content_holdings</ReportName>
+                                                                                                        <Parameters>
+                                                                                                          <Parameter Name="pt_company">
+                                                                                                            <Value>=Fields!SID2_ID.Value</Value>
+                                                                                                          </Parameter>
+                                                                                                          <Parameter Name="pt_product">
+                                                                                                            <Value>=Fields!Product_Title.Value</Value>
+                                                                                                          </Parameter>
+                                                                                                        </Parameters>
+                                                                                                      </Drillthrough>
+                                                                                                    </Action>
+                                                                                                  </Actions>
+                                                                                                </ActionInfo>
+                                                                                                <Style>
+                                                                                                  <FontSize>8pt</FontSize>
+                                                                                                  <Color>Blue</Color>
+                                                                                                </Style>
+                                                                                              </TextRun>
+                                                                                            </TextRuns>
+                                                                                            <Style>
+                                                                                              <TextAlign>Left</TextAlign>
+                                                                                            </Style>
+                                                                                          </Paragraph>
+                                                                                        </Paragraphs>
+                                                                                        <rd:DefaultName>Textbox2</rd:DefaultName>
+                                                                                        <Style>
+                                                                                          <Border>
+                                                                                            <Color>LightGrey</Color>
+                                                                                            <Style>Solid</Style>
+                                                                                          </Border>
+                                                                                          <VerticalAlign>Middle</VerticalAlign>
+                                                                                          <PaddingLeft>2pt</PaddingLeft>
+                                                                                          <PaddingRight>2pt</PaddingRight>
+                                                                                          <PaddingTop>2pt</PaddingTop>
+                                                                                          <PaddingBottom>2pt</PaddingBottom>
+                                                                                        </Style>
+                                                                                      </Textbox>
+                                                                                    </CellContents>
+                                                                                  </TablixHeader>
+                                                                                  <TablixMembers>
+                                                                                    <TablixMember />
+                                                                                  </TablixMembers>
+                                                                                </TablixMember>
+                                                                              </TablixMembers>
+                                                                            </TablixMember>
+                                                                          </TablixMembers>
+                                                                        </TablixMember>
+                                                                      </TablixMembers>
+                                                                    </TablixMember>
+                                                                  </TablixMembers>
+                                                                </TablixMember>
+                                                              </TablixMembers>
+                                                            </TablixMember>
+                                                          </TablixMembers>
+                                                          <Visibility>
+                                                            <Hidden>=min(Fields!code.Value) = "(P)" and max(Fields!code.Value) = "(P)"</Hidden>
+                                                          </Visibility>
+                                                        </TablixMember>
+                                                      </TablixMembers>
+                                                    </TablixMember>
+                                                  </TablixMembers>
+                                                </TablixMember>
+                                              </TablixMembers>
+                                            </TablixMember>
+                                          </TablixMembers>
+                                        </TablixMember>
+                                      </TablixMembers>
+                                    </TablixMember>
+                                  </TablixMembers>
+                                </TablixMember>
+                              </TablixMembers>
+                            </TablixMember>
+                          </TablixMembers>
+                        </TablixMember>
+                      </TablixMembers>
+                      <Visibility>
+                        <Hidden>=min(Fields!code.Value) = " " and max(Fields!code.Value) = " "</Hidden>
+                      </Visibility>
+                    </TablixMember>
+                  </TablixMembers>
+                </TablixMember>
+              </TablixMembers>
+            </TablixRowHierarchy>
+            <RepeatColumnHeaders>true</RepeatColumnHeaders>
+            <DataSetName>dt_dw_backfile_gaps_palgrave</DataSetName>
+            <Top>1.2cm</Top>
+            <Height>1.2cm</Height>
+            <Width>31.40167cm</Width>
+            <ZIndex>2</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Tablix>
+        </ReportItems>
+        <Height>0.94488in</Height>
+        <Style />
+      </Body>
+      <Width>12.36286in</Width>
+      <Page>
+        <PageHeight>29.7cm</PageHeight>
+        <PageWidth>21cm</PageWidth>
+        <LeftMargin>2cm</LeftMargin>
+        <RightMargin>2cm</RightMargin>
+        <TopMargin>2cm</TopMargin>
+        <BottomMargin>2cm</BottomMargin>
+        <ColumnSpacing>0.13cm</ColumnSpacing>
+        <Style />
+      </Page>
+    </ReportSection>
+  </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="pt_npg_sl_sales_1">
+      <DataType>Integer</DataType>
+      <Prompt>Select region(s)</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dt_dw_npg_sl_sales_region_1</DataSetName>
+          <ValueField>NPG_SL_sales1_Key</ValueField>
+          <LabelField>NPG_SL_sales1</LabelField>
+        </DataSetReference>
+      </ValidValues>
+      <MultiValue>true</MultiValue>
+    </ReportParameter>
+    <ReportParameter Name="pt_npg_sl_sales_2">
+      <DataType>Integer</DataType>
+      <Prompt>Select sub-region(s)</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dt_dw_npg_sl_sales_region_2</DataSetName>
+          <ValueField>NPG_SL_sales2_Key</ValueField>
+          <LabelField>NPG_SL_sales2</LabelField>
+        </DataSetReference>
+      </ValidValues>
+      <MultiValue>true</MultiValue>
+    </ReportParameter>
+    <ReportParameter Name="pt_country">
+      <DataType>String</DataType>
+      <Prompt>Select country(s)</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dt_country</DataSetName>
+          <ValueField>Country</ValueField>
+          <LabelField>Country</LabelField>
+        </DataSetReference>
+      </ValidValues>
+      <MultiValue>true</MultiValue>
+    </ReportParameter>
+    <ReportParameter Name="pt_state">
+      <DataType>String</DataType>
+      <Prompt>Select state(s)</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dt_dw_state_ptv</DataSetName>
+          <ValueField>state</ValueField>
+          <LabelField>state</LabelField>
+        </DataSetReference>
+      </ValidValues>
+      <MultiValue>true</MultiValue>
+    </ReportParameter>
+    <ReportParameter Name="pt_access_type">
+      <DataType>Integer</DataType>
+      <Prompt>Select access type</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dt_dw_access_type_ptv</DataSetName>
+          <ValueField>value</ValueField>
+          <LabelField>label</LabelField>
+        </DataSetReference>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="pt_product_group_3">
+      <DataType>Integer</DataType>
+      <Prompt>Select product group(s)</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dt_dw_product_group_g3_ptv</DataSetName>
+          <ValueField>Product_Group3_ID</ValueField>
+          <LabelField>Product_Group3</LabelField>
+        </DataSetReference>
+      </ValidValues>
+      <MultiValue>true</MultiValue>
+    </ReportParameter>
+    <ReportParameter Name="pt_product">
+      <DataType>String</DataType>
+      <Prompt>Select product(s)</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dt_dw_product_group_ptv</DataSetName>
+          <ValueField>Product_Title</ValueField>
+          <LabelField>Product_Title</LabelField>
+        </DataSetReference>
+      </ValidValues>
+      <MultiValue>true</MultiValue>
+    </ReportParameter>
+  </ReportParameters>
+  <rd:ReportUnitType>Cm</rd:ReportUnitType>
+  <rd:ReportID>550c8f79-2752-4fac-899a-d0c1b8332b0d</rd:ReportID>
+</Report>

@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RptDataSource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="ds_dpt_warehouse_live">
+  <ConnectionProperties>
+    <Extension>SQL</Extension>
+    <ConnectString>Data Source=MPL-LDN-NPGDB2;Initial Catalog=Nature_Warehouse</ConnectString>
+  </ConnectionProperties>
+  <DataSourceID>cd0b1b6a-3ad3-404b-ba4f-edee1f62153a</DataSourceID>
+</RptDataSource>

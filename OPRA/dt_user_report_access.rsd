@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_report_server_live</DataSourceReference>
+      <CommandText>--user access to reports	
+SELECT u.UserName, r.RoleName, c.Name, c.type
+FROm ReportServer.dbo.PolicyUserRole pur
+	inner join ReportServer.dbo.Roles r on pur.RoleID = r.RoleID
+	inner join ReportServer.dbo.Users u on pur.UserID = u.UserID
+	inner join ReportServer.dbo.Catalog c on pur.PolicyID = c.PolicyID
+WHERE c.Type = 2	
+ORDER BY u.UserName</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="UserName">
+        <DataField>UserName</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="RoleName">
+        <DataField>RoleName</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="Name">
+        <DataField>Name</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="type">
+        <DataField>type</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

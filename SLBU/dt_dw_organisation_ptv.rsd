@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_dpt_warehouse_live</DataSourceReference>
+      <DataSetParameters>
+        <DataSetParameter Name="@pt_country">
+          <ReadOnly>false</ReadOnly>
+          <Nullable>false</Nullable>
+          <OmitFromQuery>false</OmitFromQuery>
+          <rd:DbType>Object</rd:DbType>
+        </DataSetParameter>
+      </DataSetParameters>
+      <CommandText>SELECT o.[Organisation Key]
+FROM Nature_Warehouse.[dim].Organisation o	
+	inner join Nature_Warehouse.[dim].location l on o.[Location Key] = l.[Location Key]	
+WHERE l.Country = @pt_country</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="Organisation_Key">
+        <DataField>Organisation Key</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

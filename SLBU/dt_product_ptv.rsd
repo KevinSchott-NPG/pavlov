@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_nature_reporting</DataSourceReference>
+      <CommandText>SELECT p.product_id, p.product_code, p.product_desc, p.product_code + ' - ' + p.product_desc as 'product_full', f.family_id, f.family_name
+FROM Reg_Data.tango_client.products p
+	inner join Reg_Data.dbo.family f on p.family_id = f.family_id
+ORDER BY p.product_code</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="product_id">
+        <DataField>product_id</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="product_code">
+        <DataField>product_code</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="product_desc">
+        <DataField>product_desc</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="product_full">
+        <DataField>product_full</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="family_id">
+        <DataField>family_id</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="family_name">
+        <DataField>family_name</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

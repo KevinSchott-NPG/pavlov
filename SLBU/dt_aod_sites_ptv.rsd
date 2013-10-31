@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_nature_reporting</DataSourceReference>
+      <CommandText>SELECT distinct sa.site_id, rtrim(sa.company) as 'company', CAST(sa.site_id as varchar) + ' - ' + rtrim(sa.company) as 'site_full'
+FROM Site_Licenses2.tango_client.site_accounts sa
+	INNER JOIN Site_Licenses2.tango_client.licenses l ON sa.site_id= l.site_id 
+	INNER JOIN Site_Licenses2.dbo.ppv_orders po ON l.id=po.license_id 
+ORDER BY  rtrim(sa.company)</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="site_id">
+        <DataField>site_id</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="company">
+        <DataField>company</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="site_full">
+        <DataField>site_full</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

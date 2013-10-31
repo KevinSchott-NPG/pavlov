@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_report_server_live</DataSourceReference>
+      <CommandText>--count of runs by date
+SELECT CAST(el.TimeStart as DATE) as 'date', 
+	CAST(CAST(el.TimeStart as DATE) as varchar(10)) as 'date_text',
+	COUNT(el.ReportID) as 'run_count'
+FROM ExecutionLog el
+	inner join Catalog c on el.ReportID = c.ItemID
+WHERE el.UserName not in ('MPL\s.o''toole','MPL\S.Spicer', 'MPL\a.shakespeare','MPL\E.Birch', 
+	'MPL\Junko.Hagiwara' ,'MPL\Kevin.Schott','MPL\Mustafa.Haider' ) 
+GROUP BY CAST(el.TimeStart as DATE)</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="date">
+        <DataField>date</DataField>
+        <rd:TypeName>System.DateTime</rd:TypeName>
+      </Field>
+      <Field Name="run_count">
+        <DataField>run_count</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="date_text">
+        <DataField>date_text</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

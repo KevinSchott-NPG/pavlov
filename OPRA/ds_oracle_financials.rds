@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RptDataSource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="ds_oracle_financials">
+  <ConnectionProperties>
+    <Extension>ODBC</Extension>
+    <ConnectString>Dsn=oracle_financials</ConnectString>
+  </ConnectionProperties>
+  <DataSourceID>4a1c164f-646f-45bc-ac39-f182e72af7bc</DataSourceID>
+</RptDataSource>

@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_dpt_warehouse_live</DataSourceReference>
+      <DataSetParameters>
+        <DataSetParameter Name="@pt_country">
+          <ReadOnly>false</ReadOnly>
+          <Nullable>false</Nullable>
+          <OmitFromQuery>false</OmitFromQuery>
+          <rd:DbType>Object</rd:DbType>
+        </DataSetParameter>
+      </DataSetParameters>
+      <CommandText>--location state
+SELECT l.state
+FROM Nature_Warehouse.[dim].location l
+WHERE l.[Is Country] = 0
+	and l.country in (@pt_country)
+	
+UNION
+
+SELECT '*n/a*' as state
+WHERE 
+	--@pt_country &lt;&gt; 'United States'
+	--and @pt_country &lt;&gt; 'Canada'
+	--and 
+	(
+		'United States' not in (@pt_country)
+		--or 'Canada' not in (@pt_country)
+		and 'Canada' not in (@pt_country)
+	)
+	
+</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="state">
+        <DataField>state</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

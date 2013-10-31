@@ -1,0 +1,316 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_eclipse_reporting</DataSourceReference>
+      <DataSetParameters>
+        <DataSetParameter Name="@source_code">
+          <ReadOnly>false</ReadOnly>
+          <Nullable>false</Nullable>
+          <OmitFromQuery>false</OmitFromQuery>
+          <rd:DbType>Object</rd:DbType>
+          <rd:IsMultiValued>true</rd:IsMultiValued>
+        </DataSetParameter>
+      </DataSetParameters>
+      <CommandText>SELECT oc.oc, oc.description as oc_description, vmb.branding_description as branding, oi.customer_id, oi.orderhdr_id, oi.order_item_seq, oi.start_date, 
+oi.expire_date, oi.order_date, oi.bundle_qty, oi.subscrip_id, oi.cancel_date, oi.cancel_reason, a.company as agency, oi.agent_ref_nbr, sco.source_code, 
+sco.description as source_code_description, dv_payment.short_description as payment_status, dv_status.short_description as order_status, sd.subscription_def, 
+sd.description as subscription_def_description, sc.description as subscription_category, p.product, p.description as product_description, ca_ship.title, 
+ca_ship.fname, ca_ship.lname, ca_ship.department, ca_ship.company, ca_ship.address1, ca_ship.address2, ca_ship.address3, ca_ship.city, ca_ship.zip, 
+ca_ship.state, s_ship.country, ca_ship.email, ca_ship.phone, ca_bill.title as bill_to_title, ca_bill.fname as bill_to_fname, ca_bill.lname as bill_to_lname, 
+ca_bill.department as bill_to_department, ca_bill.company as bill_to_company, ca_bill.address1 as bill_to_address1, ca_bill.address2 as bill_to_address2, 
+ca_bill.address3 as bill_to_address3, ca_bill.city as bill_to_city, ca_bill.zip as bill_to_zip, ca_bill.state as bill_to_state, 
+s_bill.country as bill_to_country, ca_bill.email as bill_to_email, ca_bill.phone as bill_to_phone, ca_bill.tax_id_number, pm.payment_type, 
+pb.pay_currency_amount, pm.currency, pb.base_amount,
+	CASE 
+		WHEN oi.order_status in (1,2,3,4)
+		THEN 'cancelled'
+		ELSE 'non-cancelled'
+	END AS 'cancels',
+	
+	CASE
+		WHEN 
+			(	(oi.start_date is null or oi.start_date &lt;= getdate())
+				and 
+				(oi.expire_date is null or oi.expire_date &gt;= getdate())
+			) THEN 'current'
+		WHEN oi.start_date &gt; getdate() THEN 'future'
+		WHEN oi.expire_date &lt; getdate() THEN 'expired'
+		ELSE 'unhandled'
+	END AS 'date_status'  
+
+FROM order_item oi
+	inner join oc on oi.oc_id = oc.oc_id
+	left outer join oc oc_parent on oc.parent_oc_id = oc_parent.oc_id
+	left outer join oc oc_parent_jnl_grp on oc_parent.parent_oc_id = oc_parent_jnl_grp.oc_id
+	inner join view_mcmn_branding vmb on oi.oc_id = vmb.oc_id
+	left outer join agency a on oi.agency_customer_id = a.customer_id
+	inner join source_code sco on oi.source_code_id = sco.source_code_id
+	left outer join domain_value dv_payment on oi.payment_status = dv_payment.domain_value
+	left outer join domain_value dv_status on oi.order_status = dv_status.domain_value
+	left outer join subscription_def sd on oi.subscription_def_id = sd.subscription_def_id
+	left outer join subscription_category sc on sd.subscription_category_id = sc.subscription_category_id
+	left outer join product p on oi.product_id = p.product_id
+	inner join customer_address ca_ship on oi.customer_id = ca_ship.customer_id
+		and oi.customer_address_seq = ca_ship.customer_address_seq
+	inner join state s_ship on ca_ship.state = s_ship.state
+	inner join customer_address ca_bill on oi.bill_to_customer_id = ca_bill.customer_id
+		and oi.bill_to_customer_address_seq = ca_bill.customer_address_seq
+	inner join state s_bill on ca_bill.state = s_bill.state
+	left outer join order_item_amt_break oiab on oi.orderhdr_id = oiab.orderhdr_id
+		and oi.order_item_seq = oiab.order_item_seq
+	left outer join paybreak pb on oiab.orderhdr_id = pb.orderhdr_id
+		and oiab.order_item_seq = pb.order_item_seq
+		and oiab.order_item_amt_break_seq = pb.order_item_amt_break_seq
+	left outer join payment pm on pb.customer_id = pm.customer_id
+		and pb.payment_seq = pm.payment_seq
+	left outer join order_item_sgl_issues ois on oi.orderhdr_id = ois.orderhdr_id
+		and oi.order_item_seq = ois.order_item_seq
+
+WHERE dv_payment.domain_name = 'payment_status Domain'
+	and dv_status.domain_name = 'order_status'
+	and oi.order_item_type &lt;&gt; 4 --excludes package headers
+	and ois.issue_id is null --excluding single issue orders
+	and sco.source_code in (@source_code)
+	and not(oi.order_status in (1,2,3,4))</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="oc">
+        <DataField>oc</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="oc_description">
+        <DataField>oc_description</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="branding">
+        <DataField>branding</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="customer_id">
+        <DataField>customer_id</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="orderhdr_id">
+        <DataField>orderhdr_id</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="order_item_seq">
+        <DataField>order_item_seq</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="start_date">
+        <DataField>start_date</DataField>
+        <rd:TypeName>System.DateTime</rd:TypeName>
+      </Field>
+      <Field Name="expire_date">
+        <DataField>expire_date</DataField>
+        <rd:TypeName>System.DateTime</rd:TypeName>
+      </Field>
+      <Field Name="order_date">
+        <DataField>order_date</DataField>
+        <rd:TypeName>System.DateTime</rd:TypeName>
+      </Field>
+      <Field Name="bundle_qty">
+        <DataField>bundle_qty</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="subscrip_id">
+        <DataField>subscrip_id</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="cancel_date">
+        <DataField>cancel_date</DataField>
+        <rd:TypeName>System.DateTime</rd:TypeName>
+      </Field>
+      <Field Name="cancel_reason">
+        <DataField>cancel_reason</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="agency">
+        <DataField>agency</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="agent_ref_nbr">
+        <DataField>agent_ref_nbr</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="source_code">
+        <DataField>source_code</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="source_code_description">
+        <DataField>source_code_description</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="payment_status">
+        <DataField>payment_status</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="order_status">
+        <DataField>order_status</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="subscription_def">
+        <DataField>subscription_def</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="subscription_def_description">
+        <DataField>subscription_def_description</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="subscription_category">
+        <DataField>subscription_category</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="product">
+        <DataField>product</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="product_description">
+        <DataField>product_description</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="title">
+        <DataField>title</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="fname">
+        <DataField>fname</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="lname">
+        <DataField>lname</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="department">
+        <DataField>department</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="company">
+        <DataField>company</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="address1">
+        <DataField>address1</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="address2">
+        <DataField>address2</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="address3">
+        <DataField>address3</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="city">
+        <DataField>city</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="zip">
+        <DataField>zip</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="state">
+        <DataField>state</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="country">
+        <DataField>country</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="email">
+        <DataField>email</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="phone">
+        <DataField>phone</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="bill_to_title">
+        <DataField>bill_to_title</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="bill_to_fname">
+        <DataField>bill_to_fname</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="bill_to_lname">
+        <DataField>bill_to_lname</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="bill_to_department">
+        <DataField>bill_to_department</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="bill_to_company">
+        <DataField>bill_to_company</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="bill_to_address1">
+        <DataField>bill_to_address1</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="bill_to_address2">
+        <DataField>bill_to_address2</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="bill_to_address3">
+        <DataField>bill_to_address3</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="bill_to_city">
+        <DataField>bill_to_city</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="bill_to_zip">
+        <DataField>bill_to_zip</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="bill_to_state">
+        <DataField>bill_to_state</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="bill_to_country">
+        <DataField>bill_to_country</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="bill_to_email">
+        <DataField>bill_to_email</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="bill_to_phone">
+        <DataField>bill_to_phone</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="tax_id_number">
+        <DataField>tax_id_number</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="payment_type">
+        <DataField>payment_type</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="pay_currency_amount">
+        <DataField>pay_currency_amount</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+      <Field Name="currency">
+        <DataField>currency</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="base_amount">
+        <DataField>base_amount</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+      <Field Name="cancels">
+        <DataField>cancels</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="date_status">
+        <DataField>date_status</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

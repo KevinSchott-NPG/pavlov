@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_eclipse_reporting</DataSourceReference>
+      <DataSetParameters>
+        <DataSetParameter Name="@pt_start_date">
+          <ReadOnly>false</ReadOnly>
+          <Nullable>false</Nullable>
+          <OmitFromQuery>false</OmitFromQuery>
+          <rd:DbType>DateTime</rd:DbType>
+        </DataSetParameter>
+        <DataSetParameter Name="pt_end_date">
+          <ReadOnly>false</ReadOnly>
+          <Nullable>false</Nullable>
+          <OmitFromQuery>false</OmitFromQuery>
+          <rd:UserDefined>true</rd:UserDefined>
+          <rd:DbType>DateTime</rd:DbType>
+        </DataSetParameter>
+        <DataSetParameter Name="@pt_domain">
+          <ReadOnly>false</ReadOnly>
+          <Nullable>false</Nullable>
+          <OmitFromQuery>false</OmitFromQuery>
+          <rd:DbType>Object</rd:DbType>
+        </DataSetParameter>
+      </DataSetParameters>
+      <CommandText>SELECT     SUBSTRING(ca_ship.email, CHARINDEX('@', ca_ship.email), 255) AS 'domain', oc.oc, SUM(oiab.base_amount) AS 'gross_base_amount_total',oc.description
+FROM         order_item_with_aux AS oi INNER JOIN
+                      subscription_def AS sd ON oi.subscription_def_id = sd.subscription_def_id INNER JOIN
+                      order_item_amt_break AS oiab ON oi.orderhdr_id = oiab.orderhdr_id AND oi.order_item_seq = oiab.order_item_seq INNER JOIN
+                      oc AS oc ON oi.oc_id = oc.oc_id INNER JOIN
+                      customer_address AS ca_bill ON oi.bill_to_customer_id = ca_bill.customer_id AND oi.bill_to_customer_address_seq = ca_bill.customer_address_seq INNER JOIN
+                      customer_address AS ca_ship ON oi.customer_id = ca_ship.customer_id AND oi.customer_address_seq = ca_ship.customer_address_seq INNER JOIN
+                      subscription_category AS sc ON sd.subscription_category_id = sc.subscription_category_id INNER JOIN
+                      paybreak AS pb ON oiab.orderhdr_id = pb.orderhdr_id AND oiab.order_item_seq = pb.order_item_seq AND 
+                      oiab.order_item_amt_break_seq = pb.order_item_amt_break_seq INNER JOIN
+                      payment AS py ON pb.customer_id = py.customer_id AND pb.payment_seq = py.payment_seq INNER JOIN
+                      edit_trail AS et ON py.customer_id = et.customer_id AND py.payment_seq = et.payment_seq INNER JOIN
+                      view_mcmn_branding AS vmb ON oc.oc_id = vmb.oc_id INNER JOIN
+                      state AS s_bill ON ca_bill.state = s_bill.state
+WHERE     (et.xaction_name = 'payment_add_request') AND (et.edited = 0) AND (et.table_enum = 4) AND (et.document_reference_id = 59495) AND (py.ref_nbr LIKE '%-%') AND 
+                      (vmb.branding_description = 'BioCentury' OR
+                      vmb.branding_description = 'Nature Publishing Group') AND (sc.subscription_category_id = 31) AND (NOT (oi.order_status IN (1, 2, 3, 4))) AND 
+                      (oi.order_date &gt;= @pt_start_date) AND (oi.order_date &lt; @pt_end_date) AND (ca_ship.email LIKE '%' + @pt_domain)
+GROUP BY SUBSTRING(ca_ship.email, CHARINDEX('@', ca_ship.email), 255), oc.oc, oc.description
+ORDER BY 'gross_base_amount_total' DESC</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="domain">
+        <DataField>domain</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="oc">
+        <DataField>oc</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="gross_base_amount_total">
+        <DataField>gross_base_amount_total</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+      <Field Name="description">
+        <DataField>description</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_dpt_warehouse_live</DataSourceReference>
+      <DataSetParameters>
+        <DataSetParameter Name="@pt_npg_sl_sales_2">
+          <ReadOnly>false</ReadOnly>
+          <Nullable>false</Nullable>
+          <OmitFromQuery>false</OmitFromQuery>
+          <rd:DbType>Object</rd:DbType>
+        </DataSetParameter>
+      </DataSetParameters>
+      <CommandText>--location country
+SELECT distinct l.Country,l.[NPG SL sales2],[NPG SL sales2 Key]
+FROM Nature_Warehouse.[dim].location l
+WHERE [NPG SL sales2 Key] in (@pt_npg_sl_sales_2)	</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="Country">
+        <DataField>Country</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="NPG_SL_sales2">
+        <DataField>NPG SL sales2</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="NPG_SL_sales2_Key">
+        <DataField>NPG SL sales2 Key</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

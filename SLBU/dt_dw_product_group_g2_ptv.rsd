@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_dpt_warehouse_live</DataSourceReference>
+      <CommandText>SELECT distinct pg.[Product Group2],pg.[Product Group2 ID]
+FROM Nature_Warehouse.[dim].ProductGroup pg
+WHERE pg.[Product Group Type] = 'DW'</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="Product_Group2">
+        <DataField>Product Group2</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="Product_Group2_ID">
+        <DataField>Product Group2 ID</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

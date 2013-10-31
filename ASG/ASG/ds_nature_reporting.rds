@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RptDataSource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="ds_nature_reporting">
+  <ConnectionProperties>
+    <Extension>SQL</Extension>
+    <ConnectString>Data Source=199.168.13.48</ConnectString>
+  </ConnectionProperties>
+  <DataSourceID>3a5589a9-b63a-4ff6-bf17-9357ad691178</DataSourceID>
+</RptDataSource>

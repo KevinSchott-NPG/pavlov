@@ -1,0 +1,901 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns:cl="http://schemas.microsoft.com/sqlserver/reporting/2010/01/componentdefinition" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/reportdefinition">
+  <AutoRefresh>0</AutoRefresh>
+  <DataSources>
+    <DataSource Name="DataSource1">
+      <DataSourceReference>ds_dpt_warehouse_live</DataSourceReference>
+      <rd:SecurityType>None</rd:SecurityType>
+      <rd:DataSourceID>d0fde9cf-89d0-4a48-b220-53b6baa0faa8</rd:DataSourceID>
+    </DataSource>
+  </DataSources>
+  <DataSets>
+    <DataSet Name="DataSet1">
+      <Query>
+        <DataSourceName>DataSource1</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@pt_company">
+            <Value>=Parameters!pt_company.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandText>WITH cte_year ([Product Group Key], [Product Title], year_pub, archive)
+AS
+(
+	SELECT pg.[Product Group Key],pg.[Product Title]	
+		,1997 AS 'first_year'	--in lieu of table for year of first publication,  
+		,9999 --code for non-archive
+	FROM dim.ProductGroup pg		
+	WHERE pg.[Product Group Type] = 'DW' 
+		and pg.[Product Title] in ('Nature')
+
+	UNION ALL
+	 
+	SELECT [Product Group Key], [Product Title],  year_pub + 1,9999
+	FROM cte_year
+	WHERE year_pub &lt; year(getdate())
+		
+)
+
+--	
+SELECT bfg.year_pub
+	, bfg.Country
+	, bfg.[Organisation Key]
+	, sr.sales_rep	
+	--returns one code from group, based on evaluation order below
+	, CASE	
+		--grandfather rights
+		WHEN bfg.year_pub &gt;= 1997 and bfg.year_pub &lt; 2007 and ra.[Organisation Key] is not null and csl.[Organisation Key] is  not null THEN 'GF'
+		--current site licence
+		WHEN bfg.year_pub = year(getdate()) and MAX(bfg.code) = 2 and ((caf.[Organisation Key] is not null) or (cs.[Organisation Key] is not null)) THEN 'SL'
+		--post cancellation rights
+		WHEN bfg.year_pub &lt;&gt; year(getdate()) and MAX(bfg.code)= 2 and ((caf.[Organisation Key] is not null) or (cs.[Organisation Key] is not null)) THEN 'PC'
+		--back file
+		WHEN MAX(bfg.code)= 1 and ((caf.[Organisation Key] is not null) or (cs.[Organisation Key] is not null)) THEN 'BF'
+		--inactive back file
+		WHEN MAX(bfg.code)= 1 and ((caf.[Organisation Key] is  null) and  (cs.[Organisation Key] is  null)) THEN '(BF)'
+		--inactive post cancellation rights
+		WHEN MAX (bfg.code)= 2 and ((caf.[Organisation Key] is  null) and  (cs.[Organisation Key] is  null)) THEN '(PC)'
+		--archive		
+		WHEN MAX (bfg.code)= 3 and ((caf.[Organisation Key] is not null) or (cs.[Organisation Key] is not null)) THEN 'AR'
+		--inactive archive
+		WHEN MAX (bfg.code) = 3 and (bfg.archive &lt;&gt; 0) and  ((caf.[Organisation Key] is  null) and  (cs.[Organisation Key] is  null)) THEN '(AR)'	
+		-- potential sale	
+		ELSE '(P)'
+	END as 'code'	
+FROM
+	(
+		SELECT cy.*
+			, o.[Organisation Key]
+			, o.[SID2 ID]
+			, p.[Start Date], p.[Expire Date]
+			, p.[Subscription Category]
+			, l.Country		
+			, l.State
+			, l.[Is Country]	
+
+			--code
+			, CASE	
+				--AR
+				WHEN p.[Subscription Category] = 'Archive'
+					and (p.[Start Date] = CAST('1 January' + CAST(cy.year_pub as varchar)as datetime)) 
+					and (p.[Expire Date] = CAST('31 December' + CAST(cy.archive as varchar)as datetime)) 
+				THEN 3 --'AR'
+				--AR for 1997-2006
+				WHEN p.[Subscription Category] = 'Archive'
+					and (p.[Start Date] &lt;= CAST('31 December' + CAST(cy.year_pub as varchar)as datetime))
+					and (p.[Expire Date] &gt;= CAST('1 January' + CAST(cy.year_pub as varchar)as datetime)) 
+				THEN  3 --'AR'
+				-- SL
+				WHEN p.[Subscription Category] = 'Site Licence' 
+					and (p.[Start Date] &lt;= CAST('31 December' + CAST(cy.year_pub as varchar)as datetime)) 
+					and (p.[Expire Date] &gt;= CAST('1 January' + CAST(cy.year_pub as varchar)as datetime)) 
+				THEN 2 --'SL' 
+				-- backfile
+				WHEN p.[Subscription Category] = 'Back File' 
+					and (p.[Start Date] &lt;= CAST('31 December' + CAST(cy.year_pub as varchar)as datetime)) 
+					and (p.[Expire Date] &gt;= CAST('1 January' + CAST(cy.year_pub as varchar)as datetime)) 
+				THEN 1 --'BF'				
+				ELSE 0 --' '		
+			END as 'code'
+			
+		FROM --cte_year cy
+			(
+				SELECT *
+				FROM cte_year
+				UNION SELECT 224 as 'Product Group Key', 'Nature Archive 1869-1949' as 'Product Title', 1869 as 'year_pub',1949 as 'archive'
+				UNION SELECT 225 as 'Product Group Key', 'Nature Archive 1950-1986' as 'Product Title', 1950 as 'year_pub',1986 as 'archive'
+				UNION SELECT 226 as 'Product Group Key', 'Nature Archive 1987-1996' as 'Product Title', 1987 as 'year_pub',1996 as 'archive'
+				UNION SELECT 227 as 'Product Group Key', 'Nature Archive 1997-2006' as 'Product Title', 1997 as 'year_pub',2006 as 'archive'
+			) as cy
+			cross join Nature_Warehouse.[dim].Organisation o
+			inner join Nature_Warehouse.[dim].location l on o.[Location Key] = l.[Location Key]	
+			inner join Nature_Warehouse.[dim].OrganisationClass oc on o.[Organisation Class Key] = oc.[Organisation Class Key]		
+						
+			left join 
+			(
+				SELECT o.[Organisation Key], pg.[Product Group Key],o.[SID2 ID],
+					s.[Order Header ID], s.[Order Item Seq],s.[Start Date],s.[Expire Date],s.[Cancellation Date],
+					p.[Subscription Category]
+				FROM Nature_Warehouse.[dim].Organisation o
+					inner join Nature_Warehouse.[dim].CustomerAddress ca on o.[Organisation Key]=ca.[Organisation Key]
+					inner join Nature_Warehouse.[fact].[Sales] s on s.[Ship To Customer Key]=ca.[Customer Key]
+					inner join Nature_Warehouse.[dim].Product p on s.[Unpackaged Product Key]=p.[Product Key]
+					inner join Nature_Warehouse.[dim].ProductGroup pg on p.[DW Product Group Key]=pg.[Product Group Key]
+					inner join Nature_Warehouse.[dim].location l on o.[Location Key] = l.[Location Key]											
+				WHERE o.[Organisation Key] in (@pt_company)
+					and pg.[Product Title] in ('Nature','Nature Kanji','Nature Archive 1869-1949','Nature Archive 1950-1986','Nature Archive 1987-1996','Nature Archive 1997-2006')					
+					and p.[Revenue Method] &lt;&gt; 'Print'	--non-print products
+					and s.[Cancellation Date] is null	--excludes cancelled orders 	
+					and o.[is current] = 1 --current orgs only								
+					
+			) p on o.[Organisation Key] = p.[Organisation Key] 
+				and 
+				(
+					(						
+						(p.[Start Date] &lt;= CAST('31 December' + CAST(cy.year_pub as varchar)as datetime)) 
+						and (p.[Expire Date] &gt;= CAST('1 January' + CAST(cy.year_pub as varchar)as datetime))
+					)
+					Or
+					(						
+						(p.[Start Date] = CAST('1 January' + CAST(cy.year_pub as varchar)as datetime)) 
+						and (p.[Expire Date] = CAST('31 December' + CAST(cy.archive as varchar)as datetime)) 
+					)
+				) 			
+			
+		WHERE o.[is current] = 1 --current orgs only	
+			and o.[Organisation Key] in (@pt_company)
+	) bfg
+		
+	--sales rep
+	left join 
+	(
+		SELECT osr.[Organisation Key], sr.Name as 'sales_rep'
+		FROM fact.OrganisationSalesRep osr 
+			inner join dim.SalesRep sr on osr.[Sales Rep Key] = sr.[Sales Rep Key]
+		WHERE osr.[Is Current] = 1 -- current rep
+	) sr on bfg.[Organisation Key] = sr.[Organisation Key]
+	
+	--retained access
+	left join
+	(
+		SELECT distinct o.[Organisation Key]
+		FROM Nature_Warehouse.[dim].Organisation o
+			inner join Nature_Warehouse.[dim].CustomerAddress ca on o.[Organisation Key]=ca.[Organisation Key]
+			inner join Nature_Warehouse.[fact].[Sales] s on s.[Ship To Customer Key]=ca.[Customer Key]
+			inner join Nature_Warehouse.[dim].Product p on s.[Unpackaged Product Key]=p.[Product Key]
+			inner join Nature_Warehouse.[dim].ProductGroup pg on p.[DW Product Group Key]=pg.[Product Group Key]
+			inner join Nature_Warehouse.[dim].location l on o.[Location Key] = l.[Location Key]	
+		WHERE s.[Cancellation Date] is null
+			and s.[Start Date] &gt;= CAST('1 January 2006' as datetime)
+			and s.[Expire Date] &lt; CAST('1 March 2007' as datetime)
+			and p.[Subscription Category] in ('Site Licence')
+			and o.[Organisation Key] in (@pt_company)
+			and pg.[Product Title] in ('Nature')	
+			and o.[is current] = 1 --current orgs only	
+	) ra on bfg.[Organisation Key] = ra.[Organisation Key]
+	
+	--continuous site licence
+	left join 
+	(
+		SELECT o.[Organisation Key]
+		FROM Nature_Warehouse.[dim].Organisation o
+			inner join Nature_Warehouse.[dim].CustomerAddress ca on o.[Organisation Key]=ca.[Organisation Key]
+			inner join Nature_Warehouse.[fact].[Sales] s on s.[Ship To Customer Key]=ca.[Customer Key]
+			inner join Nature_Warehouse.[dim].Product p on s.[Unpackaged Product Key]=p.[Product Key]
+			inner join Nature_Warehouse.[dim].ProductGroup pg on p.[DW Product Group Key]=pg.[Product Group Key]
+			inner join Nature_Warehouse.[dim].location l on o.[Location Key] = l.[Location Key]	
+		WHERE s.[Cancellation Date] is null
+			and s.[Start Date] &gt;= CAST('1 January 2007' as datetime)
+			and p.[Subscription Category] in ('Site Licence')
+			and o.[Organisation Key] in (@pt_company)
+			and pg.[Product Title] in ('Nature')	
+			and o.[is current] = 1 --current orgs only		
+		GROUP BY o.[Organisation Key]
+		HAVING COUNT(s.[Order Header ID]) &gt;= (YEAR(getdate()) - 2006)
+	) csl on bfg.[Organisation Key] = csl.[Organisation Key]
+	
+	--current access fee	
+	left join
+	(		
+		SELECT o.[Organisation Key]
+		FROM Nature_Warehouse.[dim].Organisation o
+			inner join Nature_Warehouse.[dim].CustomerAddress ca on o.[Organisation Key]=ca.[Organisation Key]
+			inner join Nature_Warehouse.[fact].[Sales] s on s.[Ship To Customer Key]=ca.[Customer Key]
+			inner join Nature_Warehouse.[dim].Product p on s.[Unpackaged Product Key]=p.[Product Key]
+			inner join Nature_Warehouse.[dim].ProductGroup pg on p.[DW Product Group Key]=pg.[Product Group Key]
+			inner join Nature_Warehouse.[dim].location l on o.[Location Key] = l.[Location Key]	
+		WHERE s.[Cancellation Date] is null
+			and s.[Start Date] &lt; GETDATE()
+			and s.[Expire Date] &gt; GETDATE()
+			and p.[Subscription Category] in ('Access Fee Fixed','Access Fee Custom Archve','Access Fee Custom PCA')
+			and o.[Organisation Key] in (@pt_company)
+			and pg.[Product Title] in ('Nature')
+			and o.[is current] = 1 --current orgs only		
+		GROUP BY o.[Organisation Key],pg.[Product Group Key]
+	) caf on bfg.[Organisation Key] = caf.[Organisation Key] 
+	
+	--current site licence
+	left join
+	(		
+		SELECT o.[Organisation Key], max(s.[Start Date]) as 'max_start', max(s.[Expire Date]) as 'max_expire'
+		FROM Nature_Warehouse.[dim].Organisation o
+			inner join Nature_Warehouse.[dim].CustomerAddress ca on o.[Organisation Key]=ca.[Organisation Key]
+			inner join Nature_Warehouse.[fact].[Sales] s on s.[Ship To Customer Key]=ca.[Customer Key]
+			inner join Nature_Warehouse.[dim].Product p on s.[Unpackaged Product Key]=p.[Product Key]
+			inner join Nature_Warehouse.[dim].ProductGroup pg on p.[DW Product Group Key]=pg.[Product Group Key]
+			inner join Nature_Warehouse.[dim].location l on o.[Location Key] = l.[Location Key]	
+		WHERE s.[Cancellation Date] is null
+			and s.[Start Date] &lt; GETDATE()
+			and s.[Expire Date] &gt; GETDATE()
+			and p.[Subscription Category] in ('Site Licence')
+			and o.[Organisation Key] in (@pt_company)
+			and pg.[Product Title] in ('Nature')
+			and o.[is current] = 1 --current orgs only		
+		GROUP BY o.[Organisation Key],pg.[Product Group Key]
+	) cs on bfg.[Organisation Key] = cs.[Organisation Key] 	
+		 	
+	
+GROUP BY bfg.year_pub 
+	, bfg.Country
+	, bfg.[Organisation Key]
+	, ra.[Organisation Key] --retained access
+	, csl.[Organisation Key] --continuous site licence
+	, caf.[Organisation Key] -- current access fee
+	, bfg.archive
+	, cs.[Organisation Key] --current site licence
+	, sr.sales_rep
+ORDER BY bfg.year_pub, bfg.Country</CommandText>
+      </Query>
+      <Fields>
+        <Field Name="year_pub">
+          <DataField>year_pub</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="Country">
+          <DataField>Country</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Organisation_Key">
+          <DataField>Organisation Key</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="code">
+          <DataField>code</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="sales_rep">
+          <DataField>sales_rep</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="dt_dw_company_by_rep_ptv">
+      <Query>
+        <DataSourceName>DataSource1</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@pt_sales_rep">
+            <Value>=Parameters!pt_sales_rep.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandText>--Select Orgs
+--all orgs assigned to anm array of reps
+SELECT distinct o.[Organisation Key], o.[Full Name]
+FROM Nature_Warehouse.[dim].Organisation o 
+	inner join fact.OrganisationSalesRep osr on o.[Organisation Key] = osr.[Organisation Key]
+	inner join dim.SalesRep sr on osr.[Sales Rep Key] = sr.[Sales Rep Key]
+	inner join Nature_Warehouse.[dim].CustomerAddress ca on o.[Organisation Key]=ca.[Organisation Key]
+	inner join Nature_Warehouse.[fact].[Sales] s on s.[Ship To Customer Key]=ca.[Customer Key]
+	inner join Nature_Warehouse.[dim].Product p on s.[Unpackaged Product Key]=p.[Product Key]
+	inner join Nature_Warehouse.[dim].ProductGroup pg on p.[DW Product Group Key]=pg.[Product Group Key]
+WHERE osr.[Is Current] = 1 -- current rep
+	and sr.Name in (@pt_sales_rep)
+ORDER BY o.[Full Name]</CommandText>
+      </Query>
+      <Fields>
+        <Field Name="Organisation_Key">
+          <DataField>Organisation Key</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="Full_Name">
+          <DataField>Full Name</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="dt_dw_sales_rep_ptv">
+      <SharedDataSet>
+        <SharedDataSetReference>dt_dw_sales_rep_ptv</SharedDataSetReference>
+      </SharedDataSet>
+      <Fields>
+        <Field Name="sales_rep">
+          <DataField>sales_rep</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <ReportSections>
+    <ReportSection>
+      <Body>
+        <ReportItems>
+          <Tablix Name="Tablix1">
+            <TablixCorner>
+              <TablixCornerRows>
+                <TablixCornerRow>
+                  <TablixCornerCell>
+                    <CellContents>
+                      <Textbox Name="Textbox8">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>year pub</Value>
+                                <Style>
+                                  <FontWeight>Bold</FontWeight>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style>
+                              <TextAlign>Center</TextAlign>
+                            </Style>
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox8</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>LightGrey</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixCornerCell>
+                </TablixCornerRow>
+              </TablixCornerRows>
+            </TablixCorner>
+            <TablixBody>
+              <TablixColumns>
+                <TablixColumn>
+                  <Width>4.0875cm</Width>
+                </TablixColumn>
+              </TablixColumns>
+              <TablixRows>
+                <TablixRow>
+                  <Height>0.65292cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Organisation_Key">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=CountDistinct(Fields!Organisation_Key.Value)</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Organisation_Key</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+              </TablixRows>
+            </TablixBody>
+            <TablixColumnHierarchy>
+              <TablixMembers>
+                <TablixMember>
+                  <Group Name="code">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!code.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Group>
+                  <SortExpressions>
+                    <SortExpression>
+                      <Value>=Fields!code.Value</Value>
+                    </SortExpression>
+                  </SortExpressions>
+                  <TablixHeader>
+                    <Size>0.65292cm</Size>
+                    <CellContents>
+                      <Textbox Name="code">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>=Fields!code.Value</Value>
+                                <Style>
+                                  <FontWeight>Bold</FontWeight>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style>
+                              <TextAlign>Center</TextAlign>
+                            </Style>
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>code</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>LightGrey</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                </TablixMember>
+              </TablixMembers>
+            </TablixColumnHierarchy>
+            <TablixRowHierarchy>
+              <TablixMembers>
+                <TablixMember>
+                  <Group Name="year_pub1">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!year_pub.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Group>
+                  <SortExpressions>
+                    <SortExpression>
+                      <Value>=Fields!year_pub.Value</Value>
+                    </SortExpression>
+                  </SortExpressions>
+                  <TablixMembers>
+                    <TablixMember>
+                      <TablixHeader>
+                        <Size>2.5cm</Size>
+                        <CellContents>
+                          <Textbox Name="year_pub1">
+                            <CanGrow>true</CanGrow>
+                            <KeepTogether>true</KeepTogether>
+                            <Paragraphs>
+                              <Paragraph>
+                                <TextRuns>
+                                  <TextRun>
+                                    <Value>=Fields!year_pub.Value</Value>
+                                    <Style />
+                                  </TextRun>
+                                </TextRuns>
+                                <Style>
+                                  <TextAlign>Center</TextAlign>
+                                </Style>
+                              </Paragraph>
+                            </Paragraphs>
+                            <rd:DefaultName>year_pub1</rd:DefaultName>
+                            <Style>
+                              <Border>
+                                <Color>LightGrey</Color>
+                                <Style>Solid</Style>
+                              </Border>
+                              <PaddingLeft>2pt</PaddingLeft>
+                              <PaddingRight>2pt</PaddingRight>
+                              <PaddingTop>2pt</PaddingTop>
+                              <PaddingBottom>2pt</PaddingBottom>
+                            </Style>
+                          </Textbox>
+                        </CellContents>
+                      </TablixHeader>
+                      <TablixMembers>
+                        <TablixMember />
+                      </TablixMembers>
+                    </TablixMember>
+                  </TablixMembers>
+                </TablixMember>
+              </TablixMembers>
+            </TablixRowHierarchy>
+            <RepeatColumnHeaders>true</RepeatColumnHeaders>
+            <RepeatRowHeaders>true</RepeatRowHeaders>
+            <DataSetName>DataSet1</DataSetName>
+            <Top>0.67056cm</Top>
+            <Height>1.30584cm</Height>
+            <Width>6.5875cm</Width>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Tablix>
+          <Chart Name="Chart2">
+            <ChartCategoryHierarchy>
+              <ChartMembers>
+                <ChartMember>
+                  <Group Name="Chart2_CategoryGroup">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!year_pub.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Group>
+                  <SortExpressions>
+                    <SortExpression>
+                      <Value>=Fields!year_pub.Value</Value>
+                    </SortExpression>
+                  </SortExpressions>
+                  <Label>=Fields!year_pub.Value</Label>
+                </ChartMember>
+              </ChartMembers>
+            </ChartCategoryHierarchy>
+            <ChartSeriesHierarchy>
+              <ChartMembers>
+                <ChartMember>
+                  <Group Name="Chart2_SeriesGroup">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!code.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Group>
+                  <SortExpressions>
+                    <SortExpression>
+                      <Value>=Fields!code.Value</Value>
+                    </SortExpression>
+                  </SortExpressions>
+                  <Label>=Fields!code.Value</Label>
+                </ChartMember>
+              </ChartMembers>
+            </ChartSeriesHierarchy>
+            <ChartData>
+              <ChartSeriesCollection>
+                <ChartSeries Name="Organisation_Key">
+                  <ChartDataPoints>
+                    <ChartDataPoint>
+                      <ChartDataPointValues>
+                        <Y>=CountDistinct(Fields!Organisation_Key.Value)</Y>
+                      </ChartDataPointValues>
+                      <ChartDataLabel>
+                        <Style />
+                      </ChartDataLabel>
+                      <Style>
+                        <Border>
+                          <Width>1.5pt</Width>
+                        </Border>
+                      </Style>
+                      <ChartMarker>
+                        <Style />
+                      </ChartMarker>
+                      <DataElementOutput>Output</DataElementOutput>
+                    </ChartDataPoint>
+                  </ChartDataPoints>
+                  <Type>Line</Type>
+                  <Style />
+                  <ChartEmptyPoints>
+                    <Style />
+                    <ChartMarker>
+                      <Style />
+                    </ChartMarker>
+                    <ChartDataLabel>
+                      <Style />
+                    </ChartDataLabel>
+                  </ChartEmptyPoints>
+                  <ValueAxisName>Primary</ValueAxisName>
+                  <CategoryAxisName>Primary</CategoryAxisName>
+                  <ChartSmartLabel>
+                    <CalloutLineColor>Black</CalloutLineColor>
+                    <MinMovingDistance>0pt</MinMovingDistance>
+                  </ChartSmartLabel>
+                </ChartSeries>
+              </ChartSeriesCollection>
+            </ChartData>
+            <ChartAreas>
+              <ChartArea Name="Default">
+                <ChartCategoryAxes>
+                  <ChartAxis Name="Primary">
+                    <Style>
+                      <FontSize>8pt</FontSize>
+                    </Style>
+                    <ChartAxisTitle>
+                      <Caption>Year of Content</Caption>
+                      <Style>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </ChartAxisTitle>
+                    <IntervalOffsetType>Number</IntervalOffsetType>
+                    <VariableAutoInterval>true</VariableAutoInterval>
+                    <ChartMajorGridLines>
+                      <Enabled>False</Enabled>
+                      <Style>
+                        <Border>
+                          <Color>Gainsboro</Color>
+                        </Border>
+                      </Style>
+                    </ChartMajorGridLines>
+                    <ChartMinorGridLines>
+                      <Style>
+                        <Border>
+                          <Color>Gainsboro</Color>
+                          <Style>Dotted</Style>
+                        </Border>
+                      </Style>
+                    </ChartMinorGridLines>
+                    <ChartMinorTickMarks>
+                      <Length>0.5</Length>
+                    </ChartMinorTickMarks>
+                    <CrossAt>NaN</CrossAt>
+                    <Minimum>NaN</Minimum>
+                    <Maximum>NaN</Maximum>
+                    <ChartAxisScaleBreak>
+                      <Style />
+                    </ChartAxisScaleBreak>
+                  </ChartAxis>
+                  <ChartAxis Name="Secondary">
+                    <Style>
+                      <FontSize>8pt</FontSize>
+                    </Style>
+                    <ChartAxisTitle>
+                      <Caption>Axis Title</Caption>
+                      <Style>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </ChartAxisTitle>
+                    <ChartMajorGridLines>
+                      <Enabled>False</Enabled>
+                      <Style>
+                        <Border>
+                          <Color>Gainsboro</Color>
+                        </Border>
+                      </Style>
+                    </ChartMajorGridLines>
+                    <ChartMinorGridLines>
+                      <Style>
+                        <Border>
+                          <Color>Gainsboro</Color>
+                          <Style>Dotted</Style>
+                        </Border>
+                      </Style>
+                    </ChartMinorGridLines>
+                    <ChartMinorTickMarks>
+                      <Length>0.5</Length>
+                    </ChartMinorTickMarks>
+                    <CrossAt>NaN</CrossAt>
+                    <Location>Opposite</Location>
+                    <Minimum>NaN</Minimum>
+                    <Maximum>NaN</Maximum>
+                    <ChartAxisScaleBreak>
+                      <Style />
+                    </ChartAxisScaleBreak>
+                  </ChartAxis>
+                </ChartCategoryAxes>
+                <ChartValueAxes>
+                  <ChartAxis Name="Primary">
+                    <Style>
+                      <FontSize>8pt</FontSize>
+                    </Style>
+                    <ChartAxisTitle>
+                      <Caption>Number of Organisations</Caption>
+                      <Style>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </ChartAxisTitle>
+                    <ChartMajorGridLines>
+                      <Style>
+                        <Border>
+                          <Color>Gainsboro</Color>
+                        </Border>
+                      </Style>
+                    </ChartMajorGridLines>
+                    <ChartMinorGridLines>
+                      <Style>
+                        <Border>
+                          <Color>Gainsboro</Color>
+                          <Style>Dotted</Style>
+                        </Border>
+                      </Style>
+                    </ChartMinorGridLines>
+                    <ChartMinorTickMarks>
+                      <Length>0.5</Length>
+                    </ChartMinorTickMarks>
+                    <CrossAt>NaN</CrossAt>
+                    <Minimum>NaN</Minimum>
+                    <Maximum>NaN</Maximum>
+                    <ChartAxisScaleBreak>
+                      <Style />
+                    </ChartAxisScaleBreak>
+                  </ChartAxis>
+                  <ChartAxis Name="Secondary">
+                    <Style>
+                      <FontSize>8pt</FontSize>
+                    </Style>
+                    <ChartAxisTitle>
+                      <Caption>Axis Title</Caption>
+                      <Style>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </ChartAxisTitle>
+                    <ChartMajorGridLines>
+                      <Style>
+                        <Border>
+                          <Color>Gainsboro</Color>
+                        </Border>
+                      </Style>
+                    </ChartMajorGridLines>
+                    <ChartMinorGridLines>
+                      <Style>
+                        <Border>
+                          <Color>Gainsboro</Color>
+                          <Style>Dotted</Style>
+                        </Border>
+                      </Style>
+                    </ChartMinorGridLines>
+                    <ChartMinorTickMarks>
+                      <Length>0.5</Length>
+                    </ChartMinorTickMarks>
+                    <CrossAt>NaN</CrossAt>
+                    <Location>Opposite</Location>
+                    <Minimum>NaN</Minimum>
+                    <Maximum>NaN</Maximum>
+                    <ChartAxisScaleBreak>
+                      <Style />
+                    </ChartAxisScaleBreak>
+                  </ChartAxis>
+                </ChartValueAxes>
+                <Style>
+                  <BackgroundGradientType>None</BackgroundGradientType>
+                </Style>
+              </ChartArea>
+            </ChartAreas>
+            <ChartLegends>
+              <ChartLegend Name="Default">
+                <Style>
+                  <BackgroundGradientType>None</BackgroundGradientType>
+                  <FontSize>8pt</FontSize>
+                </Style>
+                <ChartLegendTitle>
+                  <Caption />
+                  <Style>
+                    <FontSize>8pt</FontSize>
+                    <FontWeight>Bold</FontWeight>
+                    <TextAlign>Center</TextAlign>
+                  </Style>
+                </ChartLegendTitle>
+                <HeaderSeparatorColor>Black</HeaderSeparatorColor>
+                <ColumnSeparatorColor>Black</ColumnSeparatorColor>
+              </ChartLegend>
+            </ChartLegends>
+            <ChartTitles>
+              <ChartTitle Name="Default">
+                <Caption>Chart to Identify Content Sold Per Year &amp; Potential Sales for Sales Rep(s) &amp; Companies selected</Caption>
+                <Style>
+                  <BackgroundGradientType>None</BackgroundGradientType>
+                  <FontWeight>Bold</FontWeight>
+                  <TextAlign>General</TextAlign>
+                  <VerticalAlign>Top</VerticalAlign>
+                </Style>
+              </ChartTitle>
+            </ChartTitles>
+            <Palette>BrightPastel</Palette>
+            <ChartBorderSkin>
+              <Style>
+                <BackgroundColor>Gray</BackgroundColor>
+                <BackgroundGradientType>None</BackgroundGradientType>
+                <Color>White</Color>
+              </Style>
+            </ChartBorderSkin>
+            <ChartNoDataMessage Name="NoDataMessage">
+              <Caption>No Data Available</Caption>
+              <Style>
+                <BackgroundGradientType>None</BackgroundGradientType>
+                <TextAlign>General</TextAlign>
+                <VerticalAlign>Top</VerticalAlign>
+              </Style>
+            </ChartNoDataMessage>
+            <DataSetName>DataSet1</DataSetName>
+            <Top>1.9764cm</Top>
+            <Height>11.6713cm</Height>
+            <Width>34.43521cm</Width>
+            <ZIndex>1</ZIndex>
+            <Style>
+              <Border>
+                <Color>LightGrey</Color>
+                <Style>Solid</Style>
+              </Border>
+              <BackgroundColor>White</BackgroundColor>
+              <BackgroundGradientType>None</BackgroundGradientType>
+            </Style>
+          </Chart>
+          <Textbox Name="Textbox21">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>To identify the number of sales of yearly content, and potential sales for sales rep: </Value>
+                    <Style>
+                      <FontWeight>Bold</FontWeight>
+                    </Style>
+                  </TextRun>
+                  <TextRun>
+                    <Value>=Parameters!pt_sales_rep.Value</Value>
+                    <Style>
+                      <FontWeight>Bold</FontWeight>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+            <rd:DefaultName>Textbox21</rd:DefaultName>
+            <Height>0.67056cm</Height>
+            <Width>34.43521cm</Width>
+            <ZIndex>2</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
+        </ReportItems>
+        <Height>5.77083in</Height>
+        <Style />
+      </Body>
+      <Width>13.55717in</Width>
+      <Page>
+        <PageHeight>29.7cm</PageHeight>
+        <PageWidth>21cm</PageWidth>
+        <LeftMargin>2cm</LeftMargin>
+        <RightMargin>2cm</RightMargin>
+        <TopMargin>2cm</TopMargin>
+        <BottomMargin>2cm</BottomMargin>
+        <ColumnSpacing>0.13cm</ColumnSpacing>
+        <Style />
+      </Page>
+    </ReportSection>
+  </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="pt_sales_rep">
+      <DataType>String</DataType>
+      <Prompt>Select sales rep:</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dt_dw_sales_rep_ptv</DataSetName>
+          <ValueField>sales_rep</ValueField>
+          <LabelField>sales_rep</LabelField>
+        </DataSetReference>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="pt_company">
+      <DataType>String</DataType>
+      <Prompt>Select company(s):</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dt_dw_company_by_rep_ptv</DataSetName>
+          <ValueField>Organisation_Key</ValueField>
+          <LabelField>Full_Name</LabelField>
+        </DataSetReference>
+      </ValidValues>
+      <MultiValue>true</MultiValue>
+    </ReportParameter>
+  </ReportParameters>
+  <rd:ReportUnitType>Cm</rd:ReportUnitType>
+  <rd:ReportID>81565d80-d61c-4bb6-93ae-220a79e88673</rd:ReportID>
+</Report>

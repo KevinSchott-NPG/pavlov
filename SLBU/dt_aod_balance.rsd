@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_eclipse_reporting</DataSourceReference>
+      <DataSetParameters>
+        <DataSetParameter Name="@site_ptv">
+          <ReadOnly>false</ReadOnly>
+          <Nullable>false</Nullable>
+          <OmitFromQuery>false</OmitFromQuery>
+          <rd:UserDefined>true</rd:UserDefined>
+          <rd:DbType>Int32</rd:DbType>
+        </DataSetParameter>
+        <DataSetParameter Name="@balance_ptv">
+          <ReadOnly>false</ReadOnly>
+          <Nullable>false</Nullable>
+          <OmitFromQuery>false</OmitFromQuery>
+          <rd:UserDefined>true</rd:UserDefined>
+          <rd:DbType>Int32</rd:DbType>
+        </DataSetParameter>
+      </DataSetParameters>
+      <CommandText>SELECT sa.site_id, rtrim(sa.company) as 'company',
+	l.created_on, l.eclipse_order_number, l.eclipse_line_number, l.id, l.expired_on,
+	po.units_total, po.units_used,
+	(po.units_total - po.units_used) as 'units_remaining',
+	pgt.description, 
+	ca.state,
+	oi.customer_id, 
+	dv_os.short_description,
+	CASE
+		WHEN pgt.description like '%ediated%' THEN 'mediated'
+		ELSE 'non-mediated'
+	END AS 'type'
+FROM [RPTSQL1].Site_Licenses2.tango_client.site_accounts sa
+	inner join [RPTSQL1].Site_Licenses2.tango_client.licenses l ON sa.site_id= l.site_id 
+	inner join [RPTSQL1].Site_Licenses2.dbo.ppv_orders po ON l.id=po.license_id 
+	inner join [RPTSQL1].Site_Licenses2.dbo.product_group_type pgt ON po.product_group_type_id = pgt.product_group_type_id
+	inner join order_item oi on l.eclipse_order_number = oi.orderhdr_id and l.eclipse_line_number = oi.order_item_seq
+	inner join customer_address ca on oi.bill_to_customer_id  = ca.customer_id and oi.bill_to_customer_address_seq = ca.customer_address_seq
+	inner join domain_value dv_os on oi.order_status = dv_os.domain_value
+WHERE dv_os.domain_name = 'order_status'
+	and  sa.site_id in (@site_ptv)
+	
+	and 
+	(
+		(@balance_ptv = 1  and  po.units_used &lt; po.units_total )
+		Or (@balance_ptv = 2  and  po.units_used - po.units_total = 0)
+		Or (@balance_ptv = 0)	
+	)	
+ORDER BY sa.site_id</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="site_id">
+        <DataField>site_id</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="company">
+        <DataField>company</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="created_on">
+        <DataField>created_on</DataField>
+        <rd:TypeName>System.DateTime</rd:TypeName>
+      </Field>
+      <Field Name="eclipse_order_number">
+        <DataField>eclipse_order_number</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="eclipse_line_number">
+        <DataField>eclipse_line_number</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="id">
+        <DataField>id</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="units_total">
+        <DataField>units_total</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="expired_on">
+        <DataField>expired_on</DataField>
+        <rd:TypeName>System.DateTime</rd:TypeName>
+      </Field>
+      <Field Name="units_used">
+        <DataField>units_used</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="description">
+        <DataField>description</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="state">
+        <DataField>state</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="units_remaining">
+        <DataField>units_remaining</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="customer_id">
+        <DataField>customer_id</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="short_description">
+        <DataField>short_description</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="type">
+        <DataField>type</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

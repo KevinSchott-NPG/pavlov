@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ToolsVersion="2.0">
+  <State>$base64$PFNvdXJjZUNvbnRyb2xJbmZvIHhtbG5zOnhzZD0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEiIHhtbG5zOnhzaT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEtaW5zdGFuY2UiIHhtbG5zOmRkbDI9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vYW5hbHlzaXNzZXJ2aWNlcy8yMDAzL2VuZ2luZS8yIiB4bWxuczpkZGwyXzI9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vYW5hbHlzaXNzZXJ2aWNlcy8yMDAzL2VuZ2luZS8yLzIiIHhtbG5zOmRkbDEwMF8xMDA9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vYW5hbHlzaXNzZXJ2aWNlcy8yMDA4L2VuZ2luZS8xMDAvMTAwIiB4bWxuczpkZGwyMDA9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vYW5hbHlzaXNzZXJ2aWNlcy8yMDEwL2VuZ2luZS8yMDAiIHhtbG5zOmRkbDIwMF8yMDA9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vYW5hbHlzaXNzZXJ2aWNlcy8yMDEwL2VuZ2luZS8yMDAvMjAwIiB4bWxuczpkd2Q9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vRGF0YVdhcmVob3VzZS9EZXNpZ25lci8xLjAiPg0KICA8RW5hYmxlZD5mYWxzZTwvRW5hYmxlZD4NCiAgPFByb2plY3ROYW1lPjwvUHJvamVjdE5hbWU+DQogIDxBdXhQYXRoPjwvQXV4UGF0aD4NCiAgPExvY2FsUGF0aD48L0xvY2FsUGF0aD4NCiAgPFByb3ZpZGVyPjwvUHJvdmlkZXI+DQo8L1NvdXJjZUNvbnRyb2xJbmZvPg==</State>
+  <DataSources>
+    <ProjectItem>
+      <Name>ds_eclipse_live.rds</Name>
+      <FullPath>ds_eclipse_live.rds</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>ds_eclipse_reporting.rds</Name>
+      <FullPath>ds_eclipse_reporting.rds</FullPath>
+    </ProjectItem>
+  </DataSources>
+  <DataSets>
+    <ProjectItem>
+      <Name>dt_branding_ptv.rsd</Name>
+      <FullPath>dt_branding_ptv.rsd</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>dt_DECIRC_all orders_source code.rsd</Name>
+      <FullPath>dt_DECIRC_all orders_source code.rsd</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>dt_DECIRC_current exc cancels_branding-journal.rsd</Name>
+      <FullPath>dt_DECIRC_current exc cancels_branding-journal.rsd</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>dt_oc_ptv.rsd</Name>
+      <FullPath>dt_oc_ptv.rsd</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>dt_revenue_method_ptv.rsd</Name>
+      <FullPath>dt_revenue_method_ptv.rsd</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>dt_subscription_type_ptv.rsd</Name>
+      <FullPath>dt_subscription_type_ptv.rsd</FullPath>
+    </ProjectItem>
+  </DataSets>
+  <Reports>
+    <ProjectItem>
+      <Name>MAR_0003_Detailed Circulation for Source Codes.rdl</Name>
+      <FullPath>MAR_0003_Detailed Circulation for Source Codes.rdl</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>MAR_0003_net_GBP_by_source_code.rdl</Name>
+      <FullPath>MAR_0003_net_GBP_by_source_code.rdl</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>MAR_0003_order_count_by_source_code_region.rdl</Name>
+      <FullPath>MAR_0003_order_count_by_source_code_region.rdl</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>MAR_0003_Source Codes.rdl</Name>
+      <FullPath>MAR_0003_Source Codes.rdl</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>MAR_0004_Detailed Circulation by Journal.rdl</Name>
+      <FullPath>MAR_0004_Detailed Circulation by Journal.rdl</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>MAR_0005_Campaign Tracking.rdl</Name>
+      <FullPath>MAR_0005_Campaign Tracking.rdl</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>MAR_0006_Active Online Subscription per Month.rdl</Name>
+      <FullPath>MAR_0006_Active Online Subscription per Month.rdl</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>MAR_0007_n38_auto_renew.rdl</Name>
+      <FullPath>MAR_0007_N38_Auto_Renew.rdl</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>MAR_0008_lapsed_orders.rdl</Name>
+      <FullPath>MAR_0008_lapsed_orders.rdl</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>MAR_0009_SourceCodes.rdl</Name>
+      <FullPath>MAR_0009_SourceCodes.rdl</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>MAR_0003_v2_Detailed_Circulation_for_Source_Codes.rdl</Name>
+      <FullPath>MAR_0003_v2_Detailed_Circulation_for_Source_Codes.rdl</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>MAR_0003_v2_net_GBP_by_source_code.rdl</Name>
+      <FullPath>MAR_0003_v2_net_GBP_by_source_code.rdl</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>MAR_0003_v2_order_count_by_source_code_region.rdl</Name>
+      <FullPath>MAR_0003_v2_order_count_by_source_code_region.rdl</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>MAR_0003_v2_Source_Codes.rdl</Name>
+      <FullPath>MAR_0003_v2_Source_Codes.rdl</FullPath>
+    </ProjectItem>
+  </Reports>
+  <Configurations>
+    <Configuration>
+      <Name>Debug</Name>
+      <Platform>Win32</Platform>
+      <Options>
+        <OutputPath>bin\Debug</OutputPath>
+        <TargetServerVersion>SSRS2008R2</TargetServerVersion>
+        <TargetServerURL>http://mpl-ldn-npgdb2/Reportserver</TargetServerURL>
+        <TargetFolder>opra/report/MAR</TargetFolder>
+        <TargetDataSourceFolder>opra/datasource</TargetDataSourceFolder>
+        <OverwriteDataSources>true</OverwriteDataSources>
+        <TargetDatasetFolder>opra/report/MAR/Dataset</TargetDatasetFolder>
+        <OverwriteDatasets>true</OverwriteDatasets>
+        <TargetReportPartFolder>Report Parts</TargetReportPartFolder>
+      </Options>
+    </Configuration>
+    <Configuration>
+      <Name>DebugLocal</Name>
+      <Platform>Win32</Platform>
+      <Options>
+        <OutputPath>bin\DebugLocal</OutputPath>
+        <TargetServerVersion>SSRS2008R2</TargetServerVersion>
+        <TargetFolder>MAR</TargetFolder>
+        <TargetDataSourceFolder>Data Sources</TargetDataSourceFolder>
+        <TargetDatasetFolder>Datasets</TargetDatasetFolder>
+        <TargetReportPartFolder>Report Parts</TargetReportPartFolder>
+      </Options>
+    </Configuration>
+    <Configuration>
+      <Name>Release</Name>
+      <Platform>Win32</Platform>
+      <Options>
+        <OutputPath>bin\Release</OutputPath>
+        <TargetServerVersion>SSRS2008R2</TargetServerVersion>
+        <TargetFolder>MAR</TargetFolder>
+        <TargetDataSourceFolder>Data Sources</TargetDataSourceFolder>
+        <TargetDatasetFolder>Datasets</TargetDatasetFolder>
+        <TargetReportPartFolder>Report Parts</TargetReportPartFolder>
+      </Options>
+    </Configuration>
+  </Configurations>
+</Project>

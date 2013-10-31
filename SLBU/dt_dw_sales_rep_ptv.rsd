@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_dpt_warehouse_live</DataSourceReference>
+      <CommandText>--Select Sales Rep
+--all sales reps who have at least one current assignment
+--NPG only
+--OPRA-1378-updated to include only current orgs and active sales reps
+
+SELECT distinct sr.Name as 'sales_rep'	
+FROM fact.OrganisationSalesRep osr 
+	inner join dim.SalesRep sr on osr.[Sales Rep Key] = sr.[Sales Rep Key]	
+	inner join dim.Organisation o on osr.[Organisation Key] = o.[Organisation Key]
+WHERE osr.[Is Current] = 1 -- current rep
+	and osr.[Business Unit ID]= 1 -- NPG
+	and o.[Is Current] = 1
+	and sr.[Is Sales Rep Active] = 1
+ORDER BY sr.Name</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="sales_rep">
+        <DataField>sales_rep</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

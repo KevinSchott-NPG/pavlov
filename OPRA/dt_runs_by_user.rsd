@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_report_server_live</DataSourceReference>
+      <CommandText>--count of runs by report, excluding dev users
+SELECT c.Name as 'report', COUNT(el.ReportID) as 'run_count'
+FROM ExecutionLog el
+	inner join Catalog c on el.ReportID = c.ItemID
+WHERE el.UserName not in ('MPL\s.o''toole','MPL\S.Spicer', 'MPL\a.shakespeare','MPL\E.Birch', 
+	'MPL\Junko.Hagiwara' ,'MPL\Kevin.Schott','MPL\Mustafa.Haider' ) 
+GROUP BY c.Name
+ORDER BY COUNT(el.ReportID) desc</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="report">
+        <DataField>report</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="run_count">
+        <DataField>run_count</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

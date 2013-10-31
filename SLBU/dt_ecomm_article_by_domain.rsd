@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_eclipse_reporting</DataSourceReference>
+      <DataSetParameters>
+        <DataSetParameter Name="@pt_start_date">
+          <ReadOnly>false</ReadOnly>
+          <Nullable>false</Nullable>
+          <OmitFromQuery>false</OmitFromQuery>
+          <rd:DbType>Object</rd:DbType>
+        </DataSetParameter>
+        <DataSetParameter Name="@pt_end_date">
+          <ReadOnly>false</ReadOnly>
+          <Nullable>false</Nullable>
+          <OmitFromQuery>false</OmitFromQuery>
+          <rd:DbType>Object</rd:DbType>
+        </DataSetParameter>
+      </DataSetParameters>
+      <CommandText>SELECT  top 20 sum(oiab.base_amount) as 'gross_base_amount_total',	
+	substring (ca_ship.email, charindex('@',ca_ship.email),255) as 'domain'
+FROM  order_item_with_aux oi 
+	INNER JOIN subscription_def sd ON oi.subscription_def_id = sd.subscription_def_id 
+	INNER JOIN order_item_amt_break oiab ON oi.orderhdr_id=oiab.orderhdr_id AND oi.order_item_seq = oiab.order_item_seq 
+	--INNER JOIN edit_trail et ON oi.orderhdr_id=et.orderhdr_id AND oi.order_item_seq=et.order_item_seq 
+	INNER JOIN oc oc ON oi.oc_id=oc.oc_id 
+	INNER JOIN customer_address ca_bill ON oi.bill_to_customer_id = ca_bill.customer_id AND oi.bill_to_customer_address_seq = ca_bill.customer_address_seq 
+	INNER JOIN customer_address ca_ship ON oi.customer_id = ca_ship.customer_id AND oi.customer_address_seq = ca_ship.customer_address_seq 
+	INNER JOIN subscription_category sc ON sd.subscription_category_id = sc.subscription_category_id 
+	INNER JOIN paybreak pb ON oiab.orderhdr_id = pb.orderhdr_id 
+		AND oiab.order_item_seq = pb.order_item_seq 
+		AND oiab.order_item_amt_break_seq = pb.order_item_amt_break_seq 
+	INNER JOIN payment py ON pb.customer_id = py.customer_id AND pb.payment_seq = py.payment_seq 
+	inner join edit_trail et on py.customer_id = et.customer_id and py.payment_seq = et.payment_seq --v2, OPRA-631
+	--INNER JOIN mcmn_oc_branding mob ON oc.oc_id = mob.oc_id --OPRA-686
+	INNER JOIN view_mcmn_branding vmb on oc.oc_id = vmb.oc_id 
+	INNER JOIN state s_bill ON ca_bill.state = s_bill.state
+
+WHERE et.xaction_name='payment_add_request' 
+	and et.edited = 0 --v2, OPRA631
+	and et.table_enum = 4 --v2, OPRA-631
+	and et.document_reference_id = 59495	--v2
+	--AND py.user_code='OSM' 
+	AND py.ref_nbr LIKE '%-%' 
+	AND 
+	(
+		vmb.branding_description ='BioCentury' 
+		OR 
+		vmb.branding_description ='Nature Publishing Group'
+	)
+	AND sc.subscription_category_id = 31
+	AND not (oi.order_status in (1,2,3,4))
+	--AND oi.order_date &gt;= DATEADD(month, DATEDIFF(month, 0, GETDATE())-12,0) --first day of month one year ago
+	--AND oi.order_date &lt; DATEADD(month, DATEDIFF(month, 0, GETDATE()), 0) --first day of current month	
+	and oi.order_date &gt;= @pt_start_date
+	and oi.order_date &lt; @pt_end_date
+	and ca_ship.email not like ('%@yahoo.co%')
+	and ca_ship.email not like ('%@gmail.com%')
+	and ca_ship.email not like ('%@hotmail.com%')
+	and ca_ship.email not like ('%@aol.com%')
+	and ca_ship.email not like ('%@comcast.net%')
+	and ca_ship.email not like ('%@mac.com%')
+	and ca_ship.email not like ('%@me.com%')
+	and ca_ship.email is not null
+GROUP BY substring (ca_ship.email, charindex('@',ca_ship.email),255)
+ORDER BY sum(oiab.base_amount) desc</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="gross_base_amount_total">
+        <DataField>gross_base_amount_total</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+      <Field Name="domain">
+        <DataField>domain</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>

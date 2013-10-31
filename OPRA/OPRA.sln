@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{F14B399A-7131-4C87-9E4B-1186C45EF12D}") = "OPRA", "OPRA.rptproj", "{5EF42813-2675-45CB-8585-AAA8C8E7E76C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Default = Debug|Default
+		DebugLocal|Default = DebugLocal|Default
+		Release|Default = Release|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5EF42813-2675-45CB-8585-AAA8C8E7E76C}.Debug|Default.ActiveCfg = Debug
+		{5EF42813-2675-45CB-8585-AAA8C8E7E76C}.Debug|Default.Build.0 = DebugLocal
+		{5EF42813-2675-45CB-8585-AAA8C8E7E76C}.Debug|Default.Deploy.0 = DebugLocal
+		{5EF42813-2675-45CB-8585-AAA8C8E7E76C}.DebugLocal|Default.ActiveCfg = DebugLocal
+		{5EF42813-2675-45CB-8585-AAA8C8E7E76C}.DebugLocal|Default.Build.0 = DebugLocal
+		{5EF42813-2675-45CB-8585-AAA8C8E7E76C}.Release|Default.ActiveCfg = Release
+		{5EF42813-2675-45CB-8585-AAA8C8E7E76C}.Release|Default.Build.0 = Release
+		{5EF42813-2675-45CB-8585-AAA8C8E7E76C}.Release|Default.Deploy.0 = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

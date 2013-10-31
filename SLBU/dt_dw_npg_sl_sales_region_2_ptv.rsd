@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_dpt_warehouse_live</DataSourceReference>
+      <DataSetParameters>
+        <DataSetParameter Name="@pt_npg_sl_sales_1">
+          <ReadOnly>false</ReadOnly>
+          <Nullable>false</Nullable>
+          <OmitFromQuery>false</OmitFromQuery>
+          <rd:DbType>Object</rd:DbType>
+        </DataSetParameter>
+      </DataSetParameters>
+      <CommandText>--NPG SL sales 2
+SELECT distinct l.[NPG SL sales2 Key], l.[NPG SL sales2],[NPG SL sales1 Key], l.[NPG SL sales1]
+FROM Nature_Warehouse.[dim].location l
+WHERE l.[NPG SL sales2 Key] is not null
+	and [NPG SL sales1 Key] in (@pt_npg_sl_sales_1)</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="NPG_SL_sales2_Key">
+        <DataField>NPG SL sales2 Key</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="NPG_SL_sales2">
+        <DataField>NPG SL sales2</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="NPG_SL_sales1_Key">
+        <DataField>NPG SL sales1 Key</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="NPG_SL_sales1">
+        <DataField>NPG SL sales1</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>
