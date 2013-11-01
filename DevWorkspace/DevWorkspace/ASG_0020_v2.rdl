@@ -114,27 +114,27 @@ oc.oc_id
 
 from 
 ' + @serverName + '.dbo.order_item oi
-inner join ' + @serverName + '.dbo.oc 
+inner join oc 
 	on oi.oc_id = oc.oc_id 
-left outer join ' + @serverName + '.dbo.domain_value as dv_payment 
+left outer join domain_value as dv_payment 
 	on oi.payment_status = dv_payment.domain_value 
-left outer join ' + @serverName + '.dbo.domain_value as dv_status 
+left outer join domain_value as dv_status 
 	on oi.order_status = dv_status.domain_value 
-left outer join ' + @serverName + '.dbo.subscription_def as sd 
+left outer join subscription_def as sd 
 	on oi.subscription_def_id = sd.subscription_def_id 
-left outer join ' + @serverName + '.dbo.subscription_category as sc 
+left outer join subscription_category as sc 
 	on sd.subscription_category_id = sc.subscription_category_id 
-inner join ' + @serverName + '.dbo.customer_address as ca_ship 
+inner join customer_address as ca_ship 
 	on oi.customer_id = ca_ship.customer_id 
 	and oi.customer_address_seq = ca_ship.customer_address_seq 
-inner join ' + @serverName + '.dbo.state as s_ship 
+inner join state as s_ship 
 	on ca_ship.state = s_ship.state 
-inner join ' + @serverName + '.dbo.customer_address as ca_bill 
+inner join customer_address as ca_bill 
 	on oi.bill_to_customer_id = ca_bill.customer_id 
 	and oi.bill_to_customer_address_seq = ca_bill.customer_address_seq 
-inner join ' + @serverName + '.dbo.state as s_bill 
+inner join state as s_bill 
 	on ca_bill.state = s_bill.state 
-left outer join ' + @serverName + '.dbo.order_item_sgl_issues as ois 
+left outer join order_item_sgl_issues as ois 
 	on oi.orderhdr_id = ois.orderhdr_id 
 	and oi.order_item_seq = ois.order_item_seq
 inner join #tmpOrdStatus

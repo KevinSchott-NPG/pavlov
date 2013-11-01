@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition">
+  <DataSet Name="">
+    <Query>
+      <DataSourceReference>ds_eclipse_reporting</DataSourceReference>
+      <DataSetParameters>
+        <DataSetParameter Name="@branding">
+          <ReadOnly>false</ReadOnly>
+          <Nullable>false</Nullable>
+          <OmitFromQuery>false</OmitFromQuery>
+          <rd:DbType>Object</rd:DbType>
+          <rd:IsMultiValued>true</rd:IsMultiValued>
+        </DataSetParameter>
+      </DataSetParameters>
+      <CommandText>SELECT *
+FROM
+(
+	SELECT NULL as 'oc_id', NULL as 'oc', NULL as description, '(All)' as 'display',
+		NULL as branding_dscription, NULL as 'parent_oc_id', NULL as 'parent_oc', 
+		NULL as 'parent_oc_description', NULL as 'oc_status'
+
+	UNION
+
+	SELECT oc.oc_id, oc.oc, oc.description, oc.oc + ' - ' + oc.description as 'display',
+		vmb.branding_description, oc_p.oc_id as 'parent_oc_id', oc_p.oc as 'parent_oc', 
+		oc_p.description as 'parent_oc_description',
+		CASE 
+			WHEN 
+			(
+				oc_p.oc like 'xNPG%'
+				or oc_p.oc like 'xPAL%'
+				or oc_gp.oc like 'xNPG%'
+				or oc_gp.oc like 'xPAL%'
+				or oc_ggp.oc like 'xNPG%'
+				or oc_ggp.oc like 'xPAL%'
+			) THEN 'obsolete'
+			ELSE 'current'
+		END as 'oc_status'
+	FROM oc
+		inner join view_mcmn_branding vmb on oc.oc_id = vmb.oc_id
+		inner join oc oc_p on oc.parent_oc_id = oc_p.oc_id
+		left join oc oc_gp on oc_p.parent_oc_id = oc_gp.oc_id
+		left join oc oc_ggp on oc_gp.parent_oc_id = oc_ggp.oc_id
+	WHERE oc.oc_type in (1,2) --only includes subscription and product oc type, excluding parent and package oc's
+		and oc.description is not null --excludes null descriptions
+		and vmb.branding_description in (@branding)	 --to enable dynamic parameter
+) o
+ORDER BY o.oc</CommandText>
+    </Query>
+    <Fields>
+      <Field Name="oc_id">
+        <DataField>oc_id</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="oc">
+        <DataField>oc</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="description">
+        <DataField>description</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="display">
+        <DataField>display</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="branding_dscription">
+        <DataField>branding_dscription</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="parent_oc_id">
+        <DataField>parent_oc_id</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="parent_oc">
+        <DataField>parent_oc</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="parent_oc_description">
+        <DataField>parent_oc_description</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="oc_status">
+        <DataField>oc_status</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+</SharedDataSet>
