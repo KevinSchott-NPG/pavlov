@@ -30,10 +30,7 @@
         <CommandText>--- Statement for development/testing
 declare 
 @orderStatus varchar(50)
-,@orderStart nvarchar(10)
-,@orderEnd nvarchar(10)
 ,@serverName varchar(50)
-,@serverParm int
 ,@sqlString nvarchar(4000)
 
 -- OCs Selection
@@ -76,14 +73,14 @@ where
 charindex(','+cast(order_status as varchar(50))+',', @orderStatus) &gt; 0
 
 -- Server Connection --
-set @serverParm = @server   --   0 = Live, 1 = Staging, 2 = QA
+--   0 = Live, 1 = Staging, 2 = QA
 
 set @serverName =
 case
-when @serverParm = 1
+when @server = 1
 then
 'eclipsestaging.eclipse_staging'
-when @serverParm = 2
+when @server = 2
 then
 'eclipsetest.eclipse_qa'
 else
