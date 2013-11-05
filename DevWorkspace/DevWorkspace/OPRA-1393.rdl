@@ -147,7 +147,7 @@ and (oi.expire_date IS NULL
 or oi.expire_date &gt;= GETDATE()) 
 and (ois.issue_id IS NULL)
 and oc.oc_id in (select oc_id from #tmpOC)
-and sd.subscription_category_id in (select subscription_category_id from #tmpSubCat)
+and sd.subscription_category_id in (' + @sub_cat +')
 
 group by 
 oc.oc_id
@@ -169,8 +169,9 @@ oc.oc_id
 ,s_ship.country
 
 order by
-oc.oc
-,sc.description
+sc.description
+,oc.oc
+
 
 drop table #tmpOC
 drop table #tmpSubCat
@@ -179,76 +180,6 @@ drop table #tmpOrdStatus
 
 execute sp_executesql @sqlString</CommandText>
       </Query>
-      <Fields>
-        <Field Name="oc">
-          <DataField>oc</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="oc_id">
-          <DataField>oc_id</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
-        </Field>
-        <Field Name="oc_description">
-          <DataField>oc_description</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="short_description">
-          <DataField>short_description</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="customer_id">
-          <DataField>customer_id</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
-        </Field>
-        <Field Name="b_lastname">
-          <DataField>b_lastname</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="agent_ref_nbr">
-          <DataField>agent_ref_nbr</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="s_lastname">
-          <DataField>s_lastname</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="orderhdr_id">
-          <DataField>orderhdr_id</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
-        </Field>
-        <Field Name="subscription_category">
-          <DataField>subscription_category</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="start_date">
-          <DataField>start_date</DataField>
-          <rd:TypeName>System.DateTime</rd:TypeName>
-        </Field>
-        <Field Name="expire_date">
-          <DataField>expire_date</DataField>
-          <rd:TypeName>System.DateTime</rd:TypeName>
-        </Field>
-        <Field Name="cancel_date">
-          <DataField>cancel_date</DataField>
-          <rd:TypeName>System.DateTime</rd:TypeName>
-        </Field>
-        <Field Name="bill_to_state">
-          <DataField>bill_to_state</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="bill_to_country">
-          <DataField>bill_to_country</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="state">
-          <DataField>state</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="country">
-          <DataField>country</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-      </Fields>
     </DataSet>
     <DataSet Name="dst_oc">
       <Query>
@@ -282,13 +213,11 @@ ORDER BY display</CommandText>
     <DataSet Name="dst_subscription_type">
       <Query>
         <DataSourceName>ds_eclipse_reporting</DataSourceName>
-        <CommandText>select distinct
-subscription_category_id
-,description
-from 
-subscription_category
-order by
-description</CommandText>
+        <CommandText>SELECT  sc.subscription_category_id, sc.description
+FROM    subscription_category sc
+UNION
+SELECT  null as subscription_category_id, 'Product' as description
+order by description</CommandText>
       </Query>
       <Fields>
         <Field Name="subscription_category_id">
@@ -1511,7 +1440,8 @@ description</CommandText>
     </ReportParameter>
     <ReportParameter Name="sub_cat">
       <DataType>Integer</DataType>
-      <Prompt>Choose Subscription Category:</Prompt>
+      <Nullable>true</Nullable>
+      <Prompt>Choose Category:</Prompt>
       <ValidValues>
         <DataSetReference>
           <DataSetName>dst_subscription_type</DataSetName>
@@ -1519,7 +1449,6 @@ description</CommandText>
           <LabelField>description</LabelField>
         </DataSetReference>
       </ValidValues>
-      <MultiValue>true</MultiValue>
     </ReportParameter>
     <ReportParameter Name="status">
       <DataType>Integer</DataType>
