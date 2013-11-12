@@ -4,12 +4,11 @@
     <Query>
       <DataSourceReference>ds_eclipse_reporting</DataSourceReference>
       <DataSetParameters>
-        <DataSetParameter Name="@branding">
+        <DataSetParameter Name="@brands">
           <ReadOnly>false</ReadOnly>
           <Nullable>false</Nullable>
           <OmitFromQuery>false</OmitFromQuery>
           <rd:DbType>Object</rd:DbType>
-          <rd:IsMultiValued>true</rd:IsMultiValued>
         </DataSetParameter>
       </DataSetParameters>
       <CommandText>SELECT *
@@ -43,7 +42,7 @@ FROM
 		left join oc oc_ggp on oc_gp.parent_oc_id = oc_ggp.oc_id
 	WHERE oc.oc_type in (1,2) --only includes subscription and product oc type, excluding parent and package oc's
 		and oc.description is not null --excludes null descriptions
-		and vmb.branding_description in (@branding)	 --to enable dynamic parameter
+		and vmb.branding_description in (@brands)	 --to enable dynamic parameter
 ) o
 ORDER BY o.oc</CommandText>
     </Query>

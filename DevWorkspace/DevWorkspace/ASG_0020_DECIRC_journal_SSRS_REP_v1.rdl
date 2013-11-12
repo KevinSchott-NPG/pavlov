@@ -9,24 +9,223 @@
     </DataSource>
   </DataSources>
   <DataSets>
-    <DataSet Name="dt_DECIRC_current_exc_cancels_branding_journal">
-      <SharedDataSet>
-        <SharedDataSetReference>dt_DECIRC_current exc cancels_branding-journal</SharedDataSetReference>
+    <DataSet Name="dstDetailedCirc">
+      <Query>
+        <DataSourceName>ds_eclipse_reporting</DataSourceName>
         <QueryParameters>
-          <QueryParameter Name="@branding">
-            <Value>=Parameters!branding.Value</Value>
+          <QueryParameter Name="@revenue">
+            <Value>=Parameters!revenue.Value</Value>
           </QueryParameter>
-          <QueryParameter Name="@oc">
-            <Value>=Parameters!oc.Value</Value>
+          <QueryParameter Name="@subType">
+            <Value>=Parameters!subType.Value</Value>
           </QueryParameter>
-          <QueryParameter Name="@revenue_method">
-            <Value>=Parameters!revenue_method.Value</Value>
+          <QueryParameter Name="@ordStat">
+            <Value>=Parameters!ordStat.Value</Value>
           </QueryParameter>
-          <QueryParameter Name="@subscription_type">
-            <Value>=Parameters!subscription_type.Value</Value>
+          <QueryParameter Name="@orderClass">
+            <Value>=Parameters!orderClass.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@server">
+            <Value>=Parameters!database.Value</Value>
           </QueryParameter>
         </QueryParameters>
-      </SharedDataSet>
+        <CommandText>declare
+@serverName nvarchar(50)
+,@revenue_method nvarchar(max)
+,@subscription_type varchar(max) 
+,@sql nvarchar (max)
+,@status nvarchar(max)
+,@orderStatus nvarchar(max)
+,@oc nvarchar(max)
+
+
+
+
+--  Setting from SSRS Parameters --------
+set @revenue_method = @revenue
+set @subscription_type = @subType
+set @orderStatus = @ordStat
+set @oc = N'' + @orderClass +''
+
+
+--------------------------------------------------
+
+
+set @serverName =
+case
+when @server = 1
+then
+'eclipsestaging.eclipse_staging.dbo.sp_executesql'
+when @server = 2
+then
+'eclipsetest.eclipse_qa.dbo.sp_executesql'
+else
+'eclipselive.eclipse_live.dbo.sp_executesql'
+end
+
+set @status = 
+case
+@orderStatus
+when  0
+then
+'0,5,6,7,8,9,10,11,12,13,14,15,16' -- Current Orders (Active)
+when  1
+then
+'1,2,3,4'  -- Cancelled Orders
+else
+'0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16'  -- All Orders
+end
+
+set @sql =
+'
+select distinct
+order_status
+into #tmpOrdStatus
+from order_item
+where 
+order_status in ('+@status+')
+
+select distinct 
+oc_id
+into #tmpOC
+from oc
+where 
+oc_id in ('+ @oc +')
+
+
+select 
+oc.oc
+,oc.description as oc_description
+,vmb.branding_description as branding
+,oi.customer_id, oi.orderhdr_id
+,oi.order_item_seq
+,oi.start_date
+,oi.expire_date
+,oi.order_date
+,oi.bundle_qty
+,oi.subscrip_id
+,oi.cancel_date
+,oi.cancel_reason
+,a.company as agency
+,oi.agent_ref_nbr
+,sco.source_code
+,sco.description as source_code_description
+,dv_payment.short_description as payment_status
+,dv_status.short_description as order_status
+,sd.subscription_def
+,sd.description as subscription_def_description
+,sc.description as subscription_category
+,p.product
+,p.description as product_description
+,ca_ship.title
+,ca_ship.fname
+,ca_ship.lname
+,ca_ship.department
+,ca_ship.company
+,ca_ship.address1
+,ca_ship.address2
+,ca_ship.address3
+,ca_ship.city
+,ca_ship.zip
+,ca_ship.state
+,s_ship.country
+,ca_ship.email
+,ca_ship.phone
+,ca_bill.title as bill_to_title
+,ca_bill.fname as bill_to_fname
+,ca_bill.lname as bill_to_lname
+,ca_bill.department as bill_to_department
+,ca_bill.company as bill_to_company
+,ca_bill.address1 as bill_to_address1
+,ca_bill.address2 as bill_to_address2
+,ca_bill.address3 as bill_to_address3
+,ca_bill.city as bill_to_city
+,ca_bill.zip as bill_to_zip
+,ca_bill.state as bill_to_state
+,s_bill.country as bill_to_country
+,ca_bill.email as bill_to_email
+,ca_bill.phone as bill_to_phone
+,ca_bill.tax_id_number
+,pm.payment_type
+,pb.pay_currency_amount
+,pm.currency
+,pb.base_amount
+
+from 
+order_item oi
+inner join oc 
+	on oi.oc_id = oc.oc_id
+left outer join oc oc_parent 
+	on oc.parent_oc_id = oc_parent.oc_id
+left outer join oc oc_parent_jnl_grp 
+	on oc_parent.parent_oc_id = oc_parent_jnl_grp.oc_id
+inner join view_mcmn_branding vmb 
+	on oi.oc_id = vmb.oc_id
+left outer join agency a 
+	on oi.agency_customer_id = a.customer_id
+inner join source_code sco 
+	on oi.source_code_id = sco.source_code_id
+left outer join domain_value dv_payment 
+	on oi.payment_status = dv_payment.domain_value
+left outer join domain_value dv_status 
+	on oi.order_status = dv_status.domain_value
+left outer join subscription_def sd 
+	on oi.subscription_def_id = sd.subscription_def_id
+left outer join subscription_category sc 
+	on sd.subscription_category_id = sc.subscription_category_id
+left outer join product p 
+	on oi.product_id = p.product_id
+inner join customer_address ca_ship 
+	on oi.customer_id = ca_ship.customer_id
+	and oi.customer_address_seq = ca_ship.customer_address_seq
+inner join state s_ship 
+	on ca_ship.state = s_ship.state
+inner join customer_address ca_bill 
+	on oi.bill_to_customer_id = ca_bill.customer_id
+	and oi.bill_to_customer_address_seq = ca_bill.customer_address_seq
+inner join state s_bill 
+	on ca_bill.state = s_bill.state
+left outer join order_item_amt_break oiab 
+	on oi.orderhdr_id = oiab.orderhdr_id
+	and oi.order_item_seq = oiab.order_item_seq
+left outer join paybreak pb 
+	on oiab.orderhdr_id = pb.orderhdr_id
+	and oiab.order_item_seq = pb.order_item_seq
+	and oiab.order_item_amt_break_seq = pb.order_item_amt_break_seq
+left outer join payment pm 
+	on pb.customer_id = pm.customer_id
+	and pb.payment_seq = pm.payment_seq
+left outer join order_item_sgl_issues ois 
+	on oi.orderhdr_id = ois.orderhdr_id
+	and oi.order_item_seq = ois.order_item_seq
+inner join #tmpOrdStatus
+	on #tmpOrdStatus.order_status = oi.order_status
+inner join #tmpOC
+	on #tmpOC.oc_id = oc.oc_id
+
+where 
+dv_payment.domain_name = ''payment_status Domain''
+and dv_status.domain_name = ''order_status''
+and oi.order_item_type &lt;&gt; 4
+and (
+		(oi.start_date is null)
+		or
+		(oi.start_date &lt;= getdate())
+		)
+		and (
+		(oi.expire_date is null)
+		or
+		(oi.expire_date &gt;= getdate())
+	)
+and ois.issue_id is null
+and oi.revenue_method in (' + @revenue_method + ')
+and (sc.description is null or sc.description in (' + @subscription_type +'))
+drop table #tmpOrdStatus
+drop table #tmpOC
+
+'
+exec @serverName @sql </CommandText>
+      </Query>
       <Fields>
         <Field Name="oc">
           <DataField>oc</DataField>
@@ -258,27 +457,12 @@
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="dt_branding_ptv">
-      <SharedDataSet>
-        <SharedDataSetReference>dt_branding_ptv</SharedDataSetReference>
-      </SharedDataSet>
-      <Fields>
-        <Field Name="branding_description">
-          <DataField>branding_description</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="display">
-          <DataField>display</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-      </Fields>
-    </DataSet>
-    <DataSet Name="dt_oc_ptv">
+    <DataSet Name="dstOC">
       <SharedDataSet>
         <SharedDataSetReference>dt_oc_ptv</SharedDataSetReference>
         <QueryParameters>
-          <QueryParameter Name="@branding">
-            <Value>=Parameters!branding.Value</Value>
+          <QueryParameter Name="@brands">
+            <Value>=Parameters!brands.Value</Value>
           </QueryParameter>
         </QueryParameters>
       </SharedDataSet>
@@ -321,7 +505,22 @@
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="dt_revenue_method_ptv">
+    <DataSet Name="dstBrands">
+      <SharedDataSet>
+        <SharedDataSetReference>dt_branding_ptv</SharedDataSetReference>
+      </SharedDataSet>
+      <Fields>
+        <Field Name="branding_description">
+          <DataField>branding_description</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="display">
+          <DataField>display</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="dstRevenue">
       <SharedDataSet>
         <SharedDataSetReference>dt_revenue_method_ptv</SharedDataSetReference>
       </SharedDataSet>
@@ -336,7 +535,7 @@
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="dt_subscription_type_ptv">
+    <DataSet Name="dstSubscriptonType">
       <SharedDataSet>
         <SharedDataSetReference>dt_subscription_type_ptv</SharedDataSetReference>
       </SharedDataSet>
@@ -360,7 +559,7 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>2.06375cm</Width>
+                  <Width>2.5cm</Width>
                 </TablixColumn>
                 <TablixColumn>
                   <Width>1.61396cm</Width>
@@ -525,7 +724,8 @@
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox1">
+                        <Textbox Name="Textbox4">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -542,7 +742,7 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox1</rd:DefaultName>
+                          <rd:DefaultName>Textbox4</rd:DefaultName>
                           <Style>
                             <Border>
                               <Color>LightGrey</Color>
@@ -2333,6 +2533,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="branding">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -4077,10 +4278,10 @@
             </TablixRowHierarchy>
             <RepeatColumnHeaders>true</RepeatColumnHeaders>
             <RepeatRowHeaders>true</RepeatRowHeaders>
-            <DataSetName>dt_DECIRC_current_exc_cancels_branding_journal</DataSetName>
+            <DataSetName>dstDetailedCirc</DataSetName>
             <Top>1.07307cm</Top>
             <Height>1.19062cm</Height>
-            <Width>121.95729cm</Width>
+            <Width>122.39354cm</Width>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -4174,7 +4375,7 @@
         <Height>0.89122in</Height>
         <Style />
       </Body>
-      <Width>48.01468in</Width>
+      <Width>48.18643in</Width>
       <Page>
         <PageHeight>29.7cm</PageHeight>
         <PageWidth>21cm</PageWidth>
@@ -4188,53 +4389,101 @@
     </ReportSection>
   </ReportSections>
   <ReportParameters>
-    <ReportParameter Name="branding">
+    <ReportParameter Name="brands">
       <DataType>String</DataType>
-      <Prompt>Select branding(s):</Prompt>
+      <Prompt>Select Brand:</Prompt>
       <ValidValues>
         <DataSetReference>
-          <DataSetName>dt_branding_ptv</DataSetName>
+          <DataSetName>dstBrands</DataSetName>
           <ValueField>branding_description</ValueField>
           <LabelField>display</LabelField>
         </DataSetReference>
       </ValidValues>
       <MultiValue>true</MultiValue>
     </ReportParameter>
-    <ReportParameter Name="oc">
-      <DataType>String</DataType>
-      <Prompt>Select oc(s):</Prompt>
+    <ReportParameter Name="orderClass">
+      <DataType>Integer</DataType>
+      <Prompt>Select OC:</Prompt>
       <ValidValues>
         <DataSetReference>
-          <DataSetName>dt_oc_ptv</DataSetName>
+          <DataSetName>dstOC</DataSetName>
           <ValueField>oc_id</ValueField>
           <LabelField>display</LabelField>
         </DataSetReference>
       </ValidValues>
       <MultiValue>true</MultiValue>
     </ReportParameter>
-    <ReportParameter Name="revenue_method">
+    <ReportParameter Name="revenue">
       <DataType>String</DataType>
-      <Prompt>Select revenue method(s):</Prompt>
+      <Prompt>Select Revenue Type:</Prompt>
       <ValidValues>
         <DataSetReference>
-          <DataSetName>dt_revenue_method_ptv</DataSetName>
+          <DataSetName>dstRevenue</DataSetName>
           <ValueField>revenue_method</ValueField>
           <LabelField>display</LabelField>
         </DataSetReference>
       </ValidValues>
-      <MultiValue>true</MultiValue>
     </ReportParameter>
-    <ReportParameter Name="subscription_type">
+    <ReportParameter Name="ordStat">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>0</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Select Status</Prompt>
+      <ValidValues>
+        <ParameterValues>
+          <ParameterValue>
+            <Value>0</Value>
+            <Label>Current Orders</Label>
+          </ParameterValue>
+          <ParameterValue>
+            <Value>1</Value>
+            <Label>Cancelled Orders</Label>
+          </ParameterValue>
+          <ParameterValue>
+            <Value>2</Value>
+            <Label>All Orders</Label>
+          </ParameterValue>
+        </ParameterValues>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="database">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>0</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Select DB:</Prompt>
+      <ValidValues>
+        <ParameterValues>
+          <ParameterValue>
+            <Value>0</Value>
+            <Label>Eclipse Live</Label>
+          </ParameterValue>
+          <ParameterValue>
+            <Value>2</Value>
+            <Label>Eclipse QA</Label>
+          </ParameterValue>
+          <ParameterValue>
+            <Value>1</Value>
+            <Label>Eclipse Staging</Label>
+          </ParameterValue>
+        </ParameterValues>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="subType">
       <DataType>String</DataType>
-      <Prompt>Select subscription type(s):</Prompt>
+      <Prompt>Subscription Type:</Prompt>
       <ValidValues>
         <DataSetReference>
-          <DataSetName>dt_subscription_type_ptv</DataSetName>
+          <DataSetName>dstSubscriptonType</DataSetName>
           <ValueField>subscription_type</ValueField>
           <LabelField>display</LabelField>
         </DataSetReference>
       </ValidValues>
-      <MultiValue>true</MultiValue>
     </ReportParameter>
   </ReportParameters>
   <rd:ReportUnitType>Cm</rd:ReportUnitType>
