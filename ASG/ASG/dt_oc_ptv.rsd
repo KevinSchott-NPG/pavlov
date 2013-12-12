@@ -46,6 +46,7 @@ FROM
 		and vmb.branding_description in (@branding)	 --to enable dynamic parameter
 ) o
 ORDER BY o.oc</CommandText>
+      <Timeout>3</Timeout>
     </Query>
     <Fields>
       <Field Name="oc_id">

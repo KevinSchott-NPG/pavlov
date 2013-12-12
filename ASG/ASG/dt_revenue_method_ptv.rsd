@@ -17,6 +17,7 @@ FROM order_item oi
 	inner join domain_value dv on oi.revenue_method = dv.domain_value
 WHERE dv.domain_name = 'revenue_method Domain'
 GROUP BY dv.domain_value, dv.short_description</CommandText>
+      <Timeout>3</Timeout>
     </Query>
     <Fields>
       <Field Name="revenue_method">

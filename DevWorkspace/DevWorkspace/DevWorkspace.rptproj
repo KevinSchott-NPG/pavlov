@@ -7,36 +7,11 @@
       <FullPath>ds_eclipse_reporting.rds</FullPath>
     </ProjectItem>
   </DataSources>
-  <DataSets>
-    <ProjectItem>
-      <Name>dt_branding_ptv.rsd</Name>
-      <FullPath>dt_branding_ptv.rsd</FullPath>
-    </ProjectItem>
-    <ProjectItem>
-      <Name>dt_DECIRC.rsd</Name>
-      <FullPath>dt_DECIRC.rsd</FullPath>
-    </ProjectItem>
-    <ProjectItem>
-      <Name>dt_DECIRC_current exc cancels_branding-journal.rsd</Name>
-      <FullPath>dt_DECIRC_current exc cancels_branding-journal.rsd</FullPath>
-    </ProjectItem>
-    <ProjectItem>
-      <Name>dt_oc_ptv.rsd</Name>
-      <FullPath>dt_oc_ptv.rsd</FullPath>
-    </ProjectItem>
-    <ProjectItem>
-      <Name>dt_revenue_method_ptv.rsd</Name>
-      <FullPath>dt_revenue_method_ptv.rsd</FullPath>
-    </ProjectItem>
-    <ProjectItem>
-      <Name>dt_subscription_type_ptv.rsd</Name>
-      <FullPath>dt_subscription_type_ptv.rsd</FullPath>
-    </ProjectItem>
-  </DataSets>
+  <DataSets />
   <Reports>
     <ProjectItem>
-      <Name>AOD-1303.rdl</Name>
-      <FullPath>AOD-1303.rdl</FullPath>
+      <Name>ASG_0020_v2.rdl</Name>
+      <FullPath>ASG_0020_v2.rdl</FullPath>
     </ProjectItem>
     <ProjectItem>
       <Name>OPRA-1299.rdl</Name>
@@ -46,14 +21,6 @@
       <Name>OPRA-1393.rdl</Name>
       <FullPath>OPRA-1393.rdl</FullPath>
     </ProjectItem>
-    <ProjectItem>
-      <Name>ASG_0020_DECIRC_journal_SSRS_REP_v1.rdl</Name>
-      <FullPath>ASG_0020_DECIRC_journal_SSRS_REP_v1.rdl</FullPath>
-    </ProjectItem>
-    <ProjectItem>
-      <Name>ASG_0020_v2.rdl</Name>
-      <FullPath>ASG_0020_v2.rdl</FullPath>
-    </ProjectItem>
   </Reports>
   <Configurations>
     <Configuration>
@@ -62,8 +29,8 @@
       <Options>
         <OutputPath>bin\Debug</OutputPath>
         <TargetServerVersion>SSRS2008R2</TargetServerVersion>
-        <TargetServerURL>http://mpl-ldn-npgspdv/reportserver_DW_Test</TargetServerURL>
-        <TargetFolder>opra/test</TargetFolder>
+        <TargetServerURL>https://npgnygth28v1/reportserver_NPGEXPRESS</TargetServerURL>
+        <TargetFolder>reports_dev</TargetFolder>
         <TargetDataSourceFolder>Data Sources</TargetDataSourceFolder>
         <OverwriteDataSources>true</OverwriteDataSources>
         <TargetDatasetFolder>Datasets</TargetDatasetFolder>
@@ -89,7 +56,8 @@
       <Options>
         <OutputPath>bin\Release</OutputPath>
         <TargetServerVersion>SSRS2008R2</TargetServerVersion>
-        <TargetFolder>DevWorkspace</TargetFolder>
+        <TargetServerURL>http://mpl-ldn-npgspdv/reportserver_DW_Test</TargetServerURL>
+        <TargetFolder>opra/test</TargetFolder>
         <TargetDataSourceFolder>Data Sources</TargetDataSourceFolder>
         <TargetDatasetFolder>Datasets</TargetDatasetFolder>
         <TargetReportPartFolder>Report Parts</TargetReportPartFolder>
